@@ -16,6 +16,8 @@ linker = ld-uClibc.so.0
 origin_release_libs = ${RELEASE_LIB}/*.a
 origin_release_objects = ${RELEASE_LIB}/*.o
 
+VERSION = $(shell git describe)
+
 CFLAGS = -mips32 \
 	 -std=c99 \
          -Wall -Wextra -Werror \
@@ -23,7 +25,7 @@ CFLAGS = -mips32 \
 	 -I. \
 	 -Iinclude \
 	 -I${KERNEL_SOURCES}/drivers/mstar/include \
-	 -DOPENRELEASE_VERSION=\"$(shell git describe)\"
+	 -DOPENRELEASE_VERSION=\"${VERSION}\"
 
 LDFLAGS_COMMON = -Wl,-EL
 
