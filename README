@@ -1,16 +1,16 @@
-This project is aim to impove functionality of current version of RELEASE.
- OPENRELEASE isn't the whole replacement of RELEASE but the wrapper with
+This project is aimed to impove functionality of current version of RELEASE.
+ OPENRELEASE isn't the whole replacement of RELEASE but a wrapper with
  additional features that RELEASE is lack for.
 
 Currently implemented features:
  - daemonization (-d option),
- - configuration via config file (example: cfg/openrelease.cfg),
-   - stdin/stdout redirection to fifo/file,
+ - configuration via a config file (example: cfg/openrelease.cfg),
+   - stdin/stdout redirection to a fifo/file,
    - additional log file,
    - enable/disable divx preview,
  - remote keys remapping via keymap config file (example: cfg/openrelease_keymap.cfg)
 
-Reuirements:
+Requirements:
  - RELEASE.cfg from firmware,
  - object files and libs to build RELEASE,
  - mipsel-gcc-uclibc-mips32 toolchain,
@@ -26,10 +26,10 @@ Build:
  Currently supported dynamic and static builds of RELEASE and OPENRELEASE.
   After successfull build image.cramfs.lzo will be located in the root directory of
   OPENRELEASE sources.
- - Dynamic build: resulted image will be included dynamicly linked RELEASE and OPENRELEASE,
+ - Dynamic build: resulting image will be included dynamicly linked RELEASE and OPENRELEASE,
     all shared libraries needed for execution and config files if some were specified.
    	make
- - Static build: resulted image will be included staticly linked binary of RELEASE or OPENRELEASE
+ - Static build: resulting image will be included staticly linked binary of RELEASE or OPENRELEASE
     and config files if some were specified. In case of OPENRELEASE build symlink named RELEASE to
     OPENRELEASE will be also included in an image.
     - for RELEASE build
@@ -44,4 +44,4 @@ Build:
  - OPENRELEASE_CONFIG=<file> - to specify location of openrelease.cfg file,
  - OPENRELEASE_KEYMAP=<file> - to specify location of openrelease_keymap.cfg file,
  - KERNEL_SOURCES=<path> - to specify location of kernel source directory.
- Any of this option can be specified in config.mk file in root OPENRELESE directory.
+ Any of this option can be specified in a config.mk file in root OPENRELESE directory.
