@@ -6,18 +6,18 @@ ${openrelease}: LIBS = ${librelease} \
 ${openrelease}: LDWRAP = $(patsubst %,-Wl${comma}--wrap=%,${WRAPS}) \
 			 -Wl,--wrap=main
 ifdef STATIC
-${openrelease}: LDFLAGS = -static \
-			  -Wl,-EL \
-			  -Wl,--start-group \
-			  ${origin_release_libs} \
-			  ${LIBS} \
-			  -Wl,--end-group \
-			  ${LDWRAP}
+${openrelease}: LDFLAGS += ${LDFLAGS_COMMON} \
+			   -static \
+			   -Wl,--start-group \
+			   ${origin_release_libs} \
+			   ${LIBS} \
+			   -Wl,--end-group \
+			   ${LDWRAP}
 else
-${openrelease}: LDFLAGS = -Wl,-EL \
-			  -Wl,-dynamic-linker=lib/${linker} \
-			  ${LIBS} \
-			  ${LDWRAP}
+${openrelease}: LDFLAGS += ${LDFLAGS_COMMON} \
+			   -Wl,-dynamic-linker=lib/${linker} \
+			   ${LIBS} \
+			   ${LDWRAP}
 endif
 
 openrelease_sources = openrelease/debug.c \

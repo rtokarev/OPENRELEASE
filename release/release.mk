@@ -7,18 +7,18 @@ ${release}: LIBS = ${librelease} \
 ${release}: LDWRAP = $(patsubst %,-Wl${comma}--wrap=%,${WRAPS})
 
 ifdef STATIC
-${release}: LDFLAGS = -static \
-		      -Wl,-EL \
-		      -Wl,--start-group \
-		      ${origin_release_libs} \
-		      ${LIBS} \
-		      -Wl,--end-group \
-		      ${LDWRAP}
+${release}: LDFLAGS += ${LDFLAGS_COMMON} \
+		       -static \
+		       -Wl,--start-group \
+		       ${origin_release_libs} \
+		       ${LIBS} \
+		       -Wl,--end-group \
+		       ${LDWRAP}
 else
-${release}: LDFLAGS = -Wl,-EL \
-		      -Wl,-dynamic-linker=lib/${linker} \
-		      ${LIBS} \
-	              ${LDWRAP}
+${release}: LDFLAGS += ${LDFLAGS_COMMON} \
+		       -Wl,-dynamic-linker=lib/${linker} \
+		       ${LIBS} \
+	               ${LDWRAP}
 endif
 
 release_sources = release/release_wrap_stub.c

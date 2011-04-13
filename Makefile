@@ -24,6 +24,8 @@ CFLAGS = -mips32 \
 	 -Iinclude \
 	 -I${KERNEL_SOURCES}/drivers/mstar/include
 
+LDFLAGS_COMMON = -Wl,-EL
+
 ifdef DEBUG
 CFLAGS += -ggdb3 -DDEBUG
 else
