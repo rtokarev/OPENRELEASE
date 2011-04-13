@@ -31,6 +31,7 @@
 #include <debug.h>
 #include <ir.h>
 #include <log.h>
+#include <version.h>
 
 #include <err.h>
 #include <errno.h>
@@ -108,7 +109,8 @@ void usage(void)
 	printf("Usage: OPENRELEASE [OPTION]\n"
 	       "  -c	      config file\n"
 	       "  -d          become daemon\n"
-	       "  -h          print this message\n"
+	       "  -h          print this message and exit\n"
+	       "  -v	      print program version and exit\n"
 	      );
 }
 
@@ -118,7 +120,7 @@ int __wrap_main(int argc, char *argv[])
 	char *config_file = "cfg/openrelease.cfg";
 	bool daemon = false;
 
-	while ((c = getopt(argc, argv, "c:dh")) != -1) {
+	while ((c = getopt(argc, argv, "c:dhv")) != -1) {
 		switch (c) {
 		case 'c':
 			config_file = strdup(optarg);
@@ -130,6 +132,10 @@ int __wrap_main(int argc, char *argv[])
 			break;
 		case 'h':
 			usage();
+
+			_exit(EXIT_SUCCESS);
+		case 'v':
+			printf("%s\n", openrelease_version());
 
 			_exit(EXIT_SUCCESS);
 		default:

@@ -27,6 +27,7 @@ openrelease_sources = openrelease/debug.c \
 		      openrelease/main_wrap.c \
 		      openrelease/parse_config.c \
 		      openrelease/release_wrap.c \
+		      openrelease/version.c \
 		      third_party/daemon.c
 
 openrelease_objects = $(patsubst %.c,%.o,${openrelease_sources})

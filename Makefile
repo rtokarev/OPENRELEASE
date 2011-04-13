@@ -22,7 +22,8 @@ CFLAGS = -mips32 \
 	 -D_GNU_SOURCE \
 	 -I. \
 	 -Iinclude \
-	 -I${KERNEL_SOURCES}/drivers/mstar/include
+	 -I${KERNEL_SOURCES}/drivers/mstar/include \
+	 -DOPENRELEASE_VERSION=\"$(shell git describe)\"
 
 LDFLAGS_COMMON = -Wl,-EL
 
