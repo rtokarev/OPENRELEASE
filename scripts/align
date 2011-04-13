@@ -1,0 +1,11 @@
+#!/bin/sh
+
+block_size=4096
+
+file=$1
+size=$(stat -c %s ${file})
+append_size=$(( ${block_size}- $(( ${size} % ${block_size} )) ))
+
+cat /dev/zero | \
+	tr '\0' '\377' | \
+	dd of=${file} oflag=append conv=notrunc bs=1 count=${append_size}

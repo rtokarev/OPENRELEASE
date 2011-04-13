@@ -1,0 +1,47 @@
+This project is aim to impove functionality of current version of RELEASE.
+ OPENRELEASE isn't the whole replacement of RELEASE but the wrapper with
+ additional features that RELEASE is lack for.
+
+Currently implemented features:
+ - daemonization (-d option),
+ - configuration via config file (example: cfg/openrelease.cfg),
+   - stdin/stdout redirection to fifo/file,
+   - additional log file,
+   - enable/disable divx preview,
+ - remote keys remapping via keymap config file (example: cfg/openrelease_keymap.cfg)
+
+Reuirements:
+ - RELEASE.cfg from firmware,
+ - object files and libs to build RELEASE,
+ - mipsel-gcc-uclibc-mips32 toolchain,
+ - firmware kernel sources,
+ - lzopack
+
+Configuration:
+ - add path to toolchain and lzopack to PATH environment,
+ - create custom openrelease.cfg and openrelease_keymap.cfg if needed
+ - create config.mk if needed
+
+Build:
+ Currently supported dynamic and static builds of RELEASE and OPENRELEASE.
+  After successfull build image.cramfs.lzo will be located in the root directory of
+  OPENRELEASE sources.
+ - Dynamic build: resulted image will be included dynamicly linked RELEASE and OPENRELEASE,
+    all shared libraries needed for execution and config files if some were specified.
+   	make
+ - Static build: resulted image will be included staticly linked binary of RELEASE or OPENRELEASE
+    and config files if some were specified. In case of OPENRELEASE build symlink named RELEASE to
+    OPENRELEASE will be also included in an image.
+    - for RELEASE build
+    	make STATIC=RELEASE
+    - for OPENRELEASE build
+    	make STATIC=OPENRELEASE
+ Each build command can be supplemented with following options:
+ - VERBOSE=1 to be more verbose during build,
+ - DEBUG=1 - to build binary with debug info. Image wiil be also included source files,
+ - RELEASE_LIB=<path> - to specify location of RELEASE objects and libraries,
+ - RELEASE_CFG=<file> - to specify location of RELEASE.cfg file,
+ - OPENRELEASE_CONFIG=<file> - to specify location of openrelease.cfg file,
+ - OPENRELEASE_KEYMAP=<file> - to specify location of openrelease_keymap.cfg file,
+ - KERNEL_SOURCES=<path> - to specify location of kernel source directory.
+ Any of this option can be specified in config.mk file in root OPENRELESE directory.
