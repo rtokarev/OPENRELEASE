@@ -7,8 +7,10 @@ MKDIR = mkdir
 CHMOD = chmod
 
 ALIGN = scripts/align
+VERSION_FORMAT = scripts/version_format
 MKCRAMFS = utils/mkcramfs
 LZOPACK = lzopack
+MKEPK = mkepk
 
 ifeq ($(VERBOSE),)
 $(eval override CC = @/bin/echo -e "\tCC" $$@; $(CC))
@@ -26,5 +28,6 @@ $(eval override STRIP = @${STRIP})
 $(eval override ALIGN = @${ALIGN} $$$ 1>/dev/null 2>/dev/null)
 $(eval override MKCRAMFS = @${MKCRAMFS} $$$ 1>/dev/null 2>/dev/null)
 $(eval override LZOPACK = @${LZOPACK} $$$ 1>/dev/null 2>/dev/null)
+$(eval override MKEPK = @${MKEPK} $$$ 1>/dev/null 2>/dev/null)
 endif
 

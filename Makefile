@@ -17,6 +17,7 @@ origin_release_libs = ${RELEASE_LIB}/*.a
 origin_release_objects = ${RELEASE_LIB}/*.o
 
 VERSION = $(shell git describe)
+VERSION_BASE = $(shell git describe | sed -e 's/-.*//')
 
 CFLAGS = -mips32 \
 	 -std=c99 \
@@ -35,7 +36,7 @@ else
 CFLAGS += -O2
 endif
 
-all: utils image.cramfs.lzo
+all: utils openrelease.epk
 
 utils:
 	${MAKE} -C utils

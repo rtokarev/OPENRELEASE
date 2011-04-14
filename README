@@ -24,7 +24,7 @@ Configuration:
 
 Build:
  Currently supported dynamic and static builds of RELEASE and OPENRELEASE.
-  After successfull build image.cramfs.lzo will be located in the root directory of
+  After successfull build openrelease.epk will be located in the root directory of
   OPENRELEASE sources.
  - Dynamic build: resulting image will be included dynamicly linked RELEASE and OPENRELEASE,
     all shared libraries needed for execution and config files if some were specified.
