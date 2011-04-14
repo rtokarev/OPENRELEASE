@@ -16,6 +16,7 @@ Requirements:
  - mipsel-gcc-uclibc-mips32 toolchain,
  - firmware kernel sources,
  - lzopack
+ - mkepk
 
 Configuration:
  - add path to toolchain and lzopack to PATH environment,
