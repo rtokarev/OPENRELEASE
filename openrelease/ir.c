@@ -106,7 +106,8 @@
 	_(default)			\
 	KEY_PRESSED_ACTIONS(IR_KEYS, _) \
 	_(screen_mute)			\
-	_(soft_poweroff)
+	_(soft_poweroff)		\
+	_(osd_select)
 
 
 static int ir_action_default(IR_READ_PARAM_T *param);
@@ -143,11 +144,9 @@ static int ir_action_screen_mute(IR_READ_PARAM_T *param __attribute__((unused)))
 		return -1;
 
 	if (!screen_muted)
-		cmd = OSD_SELECT_OFF
-		      SCREEN_MUTE_ON;
+		cmd = SCREEN_MUTE_ON;
 	else
-		cmd = OSD_SELECT_ON
-		      SCREEN_MUTE_OFF;
+		cmd = SCREEN_MUTE_OFF;
 
 	if (debug_write(cmd) == -1)
 		return 0;
@@ -164,20 +163,41 @@ static int ir_action_soft_poweroff(IR_READ_PARAM_T *param __attribute__((unused)
 	const char *cmd;
 
 	if (!poweroff)
-		cmd = SCREEN_MUTE_ON
-		      OSD_SELECT_OFF
-		      CONTROL_LOCK_ON
-		      VOLUME_MUTE_ON;
+		cmd = VOLUME_MUTE_ON
+		      SCREEN_MUTE_ON
+		      CONTROL_LOCK_ON;
 	else
-		cmd = CONTROL_LOCK_OFF
-		      VOLUME_MUTE_OFF
-		      OSD_SELECT_ON
-		      SCREEN_MUTE_OFF;
+		cmd = VOLUME_MUTE_OFF
+		      SCREEN_MUTE_OFF
+		      CONTROL_LOCK_OFF;
 
 	if (debug_write(cmd) == -1)
 		return 0;
 
 	poweroff = !poweroff;
+
+	usleep(500000);
+
+	return -1;
+}
+
+static int ir_action_osd_select(IR_READ_PARAM_T *param __attribute__((unused)))
+{
+	static bool osd_on = true;
+	const char *cmd;
+
+	if (poweroff)
+		return -1;
+
+	if (osd_on)
+		cmd = OSD_SELECT_OFF;
+	else
+		cmd = OSD_SELECT_ON;
+
+	if (debug_write(cmd) == -1)
+		return 0;
+
+	osd_on = !osd_on;
 
 	usleep(500000);
 
