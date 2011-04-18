@@ -31,10 +31,12 @@
 
 #define MAX_LEN 256
 
+
 typedef struct {
 	char key[MAX_LEN];
 	char value[MAX_LEN];
 } KeyValuePair;
+
 
 KeyValuePair *parseCfgFile(const char *file);
 KeyValuePair *findKeyValuePair(KeyValuePair *pairs, const char *key);

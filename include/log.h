@@ -31,6 +31,7 @@
 
 #define say_error(format, args...) say("error: "format, ##args)
 
+
 int create_log(const char *fname);
 void say(const char *format, ...);
 

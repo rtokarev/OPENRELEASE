@@ -29,24 +29,49 @@
 
 #include <log.h>
 
+#include <fcntl.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 
 static FILE *log_f = NULL;
+static int log_fd = -1;
 
 int create_log(const char *fname)
 {
 	int r;
 
-	log_f = fopen(fname, "a");
+	if (fname == NULL)
+		return 0;
+
+	log_fd = open(fname, O_CREAT | O_WRONLY | O_APPEND);
+	if (log_fd == -1)
+		goto error;
+
+	if (fcntl(log_fd, F_SETFD, FD_CLOEXEC) == -1)
+		goto error;
+
+	log_f = fdopen(log_fd, "a");
 	if (log_f == NULL)
-		return -1;
+		goto error;
 
 	r = setvbuf(log_f, (char *)NULL, _IOLBF, 0);
 	if (r != 0)
-		return -1;
+		goto error;
 
 	return 0;
+
+error:
+	fprintf(stderr, "can't open log file `%s': %m\n", fname);
+	if (log_f)
+		fclose(log_f);
+	else if (log_fd)
+		close(log_fd);
+
+	return -1;
 }
 
 void say(const char *format, ...)

@@ -20,7 +20,8 @@ ${openrelease}: LDFLAGS += ${LDFLAGS_COMMON} \
 			   ${LDWRAP}
 endif
 
-openrelease_sources = openrelease/debug.c \
+openrelease_sources = openrelease/config.c \
+		      openrelease/debug.c \
 		      openrelease/ir.c \
 		      openrelease/libc_wrap.c \
 		      openrelease/log.c \
@@ -56,9 +57,14 @@ else
 	${CP} ${openrelease_sources} image/src/
 endif
 	${CHMOD} +t image/bin/openrelease
-	${MKDIR} -p image/cfg
-	${CP} ${OPENRELEASE_CONFIG} image/cfg/
-	${CP} ${OPENRELEASE_KEYMAP} image/cfg/
+ifdef OPENRELEASE_CONFIG
+	${MKDIR} -p image/etc
+	${CP} ${OPENRELEASE_CONFIG} image/etc/
+endif
+ifdef OPENRELEASE_KEYMAP
+	${MKDIR} -p image/etc
+	${CP} ${OPENRELEASE_KEYMAP} image/etc/
+endif
 
 openrelease_clean:
 	${RM} ${openrelease_objects}

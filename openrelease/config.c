@@ -1,5 +1,3 @@
-#ifndef _CONFIG_H_
-#define _CONFIG_H_
 /*
  * Copyright (c) 2010 Roman Tokarev <roman.s.tokarev@gmail.com>
  * All rights reserved.
@@ -29,19 +27,49 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <parse_config.h>
-#include <log.h>
+#include <config.h>
 
-#include <stdlib.h>
+#include <libgen.h>
+#include <stdio.h>
+#include <unistd.h>
 
 
-#define CONFIG_STRUCT
+struct config config = {
+#define CONFIG_DEFAULTS
+#include <config_tmpl.h>
+};
+
+
+#define CONFIG_PARSE
 #include <config_tmpl.h>
 
+int config_init(char *config_file)
+{
+	if (!config_file)
+		return 0;
 
-extern struct config config;
+	if (access(config_file, F_OK | R_OK)) {
+		say_error("can't access `%s': %m\n", config_file);
 
+		return -1;
+	}
 
-int config_init(char *config_file);
+	say("load `%s' config file", config_file);
 
-#endif
+	parse_config(config_file, &config);
+
+	char *keymap = malloc(MAX_LEN);
+
+	if (keymap == NULL) {
+		say_error("can't build path for keymap file: %m");
+
+		return -1;
+	}
+
+	snprintf(keymap, MAX_LEN, "%s/%s", dirname(config_file), config.keymap);
+
+	free(config.keymap);
+	config.keymap = keymap;
+
+	return 0;
+}

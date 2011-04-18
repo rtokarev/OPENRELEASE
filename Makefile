@@ -54,5 +54,4 @@ include scripts/image.mk
 
 clean: librelease_clean release_clean openrelease_clean image_clean
 	${RM} .depend
-	${RM} tags
 	${MAKE} -C utils clean

@@ -4,11 +4,11 @@ This project is aimed to impove functionality of current version of RELEASE.
 
 Currently implemented features:
  - daemonization (-d option),
- - configuration via a config file (example: cfg/openrelease.cfg),
+ - configuration via a config file (example: etc/openrelease.cfg),
    - stdin/stdout redirection to a fifo/file,
    - additional log file,
    - enable/disable divx preview,
- - remote keys remapping via keymap config file (example: cfg/openrelease_keymap.cfg)
+ - remote keys remapping via keymap config file (example: etc/openrelease_keymap.cfg)
 
 Requirements:
  - RELEASE.cfg from firmware,

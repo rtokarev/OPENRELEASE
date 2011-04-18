@@ -32,7 +32,6 @@
 BEGIN_CONFIG(config)
 	PARAM_CONFIG(input, char *, "/tmp/openrelease.in", parse_string, print_string)
 	PARAM_CONFIG(output, char *, "/tmp/openrelease.out", parse_string, print_string)
-	PARAM_CONFIG(log, char *, NULL, parse_string, print_string)
 	PARAM_CONFIG(keymap, char *, "cfg/openrelease_keymap.cfg", parse_string, print_string)
 	PARAM_CONFIG(enable_divx_preview, unsigned, 1, parse_unsigned, print_unsigned)
 END_CONFIG

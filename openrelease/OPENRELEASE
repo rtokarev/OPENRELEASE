@@ -2,6 +2,61 @@
 
 cd ${0%/*}
 
-LD_LIBRARY_PATH=lib
+config_defined=false
+while getopts c: OPTION 2> /dev/null
+do
+	case ${OPTION} in
+	c)
+		config_defined=true
+		;;
+	?)
+		;;
+	esac
+done
 
-exec bin/openrelease $@
+config_file=""
+if [ ${config_defined} == false ]
+then
+	# There is no any config file defined in a command line.
+
+	while true
+	do
+		# Try to find out one on the first partiotion of the first usb drive.
+		mkdir -p /tmp/usb1_drive1
+		mount /dev/sda1 /tmp/usb1_drive1
+		if [ -e /tmp/usb1_drive1/etc/openrelease/openrelease.cfg ]
+		then
+			config_file=/tmp/usb1_drive1/etc/openrelease/openrelease.cfg
+
+			break
+		fi
+		umount /tmp/usb1_drive1
+
+		# Check /mnt/lg/user/etc/openrelease/
+		if [ -e /mnt/lg/user/etc/openrelease/openrelease.cfg ]
+		then
+			config_file=/mnt/lg/user/etc/openrelease/openrelease.cfg
+
+			break
+		fi
+
+		# Check etc/
+		if [ -e etc/openrelease.cfg ]
+		then
+			config_file=etc/openrelease.cfg
+
+			break
+		fi
+
+		break
+	done
+fi
+
+args=$@
+if [ "${config_file}" != "" ]
+then
+	args="-c ${config_file} ${args}"
+fi
+
+LD_LIBRARY_PATH=lib
+exec bin/openrelease ${args}

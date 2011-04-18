@@ -50,15 +50,6 @@ int daemonize(int nochdir, int noclose);
 int __real_main(int argc, char *argv[]);
 
 
-struct config config = {
-#define CONFIG_DEFAULTS
-#include <config_tmpl.h>
-};
-
-
-#define CONFIG_PARSE
-#include <config_tmpl.h>
-
 static int mfifo(const char *name, int mode)
 {
 	if (mkfifo(name, S_IFIFO|S_IRWXU) == -1 && errno != EEXIST)
@@ -80,14 +71,14 @@ static int stdio_init(const char *ifname, const char *ofname)
 
 	if (ifname &&
 	    (ifd = mfifo(ifname, O_RDWR)) == -1) {
-		say("can't open `%s': %m", ifname);
+		say_error("can't open `%s': %m", ifname);
 
 		return -1;
 	}
 
 	if (ofname &&
 	    (ofd = open(ofname, O_WRONLY | O_CREAT | O_TRUNC)) == -1) {
-		say("can't open `%s': %m", ofname);
+		say_error("can't open `%s': %m", ofname);
 
 		return -1;
 	}
@@ -106,21 +97,23 @@ static int stdio_init(const char *ifname, const char *ofname)
 
 void usage(void)
 {
-	printf("Usage: OPENRELEASE [OPTION]\n"
-	       "  -c	      config file\n"
-	       "  -d          become daemon\n"
-	       "  -h          print this message and exit\n"
-	       "  -v	      print program version and exit\n"
+	printf("Usage: OPENRELEASE [OPTIONS]\n"
+	       "  -c FILE               config file\n"
+	       "  -d                    become daemon\n"
+	       "  -h                    print this message and exit\n"
+	       "  -l FILE               log file\n"
+	       "  -v                    print program version and exit\n"
 	      );
 }
 
 int __wrap_main(int argc, char *argv[])
 {
 	int c;
-	char *config_file = "cfg/openrelease.cfg";
+	char *config_file = NULL;
+	char *log_file = NULL;
 	bool daemon = false;
 
-	while ((c = getopt(argc, argv, "c:dhv")) != -1) {
+	while ((c = getopt(argc, argv, "c:dhl:v")) != -1) {
 		switch (c) {
 		case 'c':
 			config_file = strdup(optarg);
@@ -134,6 +127,10 @@ int __wrap_main(int argc, char *argv[])
 			usage();
 
 			_exit(EXIT_SUCCESS);
+		case 'l':
+			log_file = strdup(optarg);
+
+			break;
 		case 'v':
 			printf("%s\n", openrelease_version());
 
@@ -145,9 +142,11 @@ int __wrap_main(int argc, char *argv[])
 		}
 	}
 
+	create_log(log_file);
+
 	if (daemon && getppid() != 1) {
 		if (daemonize(1, 0) == -1) {
-			fprintf(stderr, "can't daemonize\n");
+			say_error("can't daemonize");
 
 			_exit(EXIT_FAILURE);
 		}
@@ -155,14 +154,10 @@ int __wrap_main(int argc, char *argv[])
 		execvp(argv[0], argv);
 	}
 
-	parse_config(config_file, &config);
-
-	if (config.log)
-		if (create_log(config.log) != 0)
-			fprintf(stderr, "can't create log file `%s'", config.log);
+	config_init(config_file);
 
 	if (stdio_init(config.input, config.output) == -1) {
-		say("stdio_init failed");
+		say_error("stdio_init failed");
 
 		_exit(EXIT_FAILURE);
 	}
