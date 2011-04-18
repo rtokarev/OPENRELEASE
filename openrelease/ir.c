@@ -41,6 +41,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <nano-X.h>
+
 
 #define SCREEN_MUTE_ON		"kd 00 01\n"
 #define SCREEN_MUTE_OFF		"kd 00 00\n"
@@ -124,7 +126,11 @@
 	KEY_PRESSED_ACTIONS(IR_KEYS, _) \
 	_(screen_mute)			\
 	_(soft_poweroff)		\
-	_(osd_select)
+	_(osd_select)			\
+	_(call_instart)			\
+	_(call_ezadjust)		\
+	_(dimming_low)			\
+	_(test_nanox)			
 
 
 IR_ACTION_DECL(default);
@@ -211,6 +217,64 @@ IR_ACTION_BEGIN(osd_select)
 }
 IR_ACTION_END
 
+/*
+	my handlers begin
+*/
+
+static int ir_action_test_nanox(IR_READ_PARAM_T *param __attribute__((unused)))
+{
+	say ("test_nanox");
+	return -1;
+}
+
+/* 
+	Call service menu 
+*/
+
+extern void SUMODE_CreateInStartWin(void);
+extern void SUMODE_CreateEZAdjustWin(void);
+
+static int ir_action_call_instart(IR_READ_PARAM_T *param __attribute__((unused)))
+{
+	say ("call_instart begin");
+	SUMODE_CreateInStartWin();
+	say ("call_instart end");
+	return -1;
+}
+
+static int ir_action_call_ezadjust(IR_READ_PARAM_T *param __attribute__((unused)))
+{
+	say ("call_ezadjust begin");
+	SUMODE_CreateInStartWin();
+	say ("call_ezadjust end");
+	return -1;
+}
+
+/* 
+	Set gDimmingPercent
+*/
+
+extern unsigned char gDimmingPercent;
+
+#define DIMMING_MAX 0x00
+#define DIMMING_MID 0x23
+#define DIMMING_LOW 0x41
+#define DIMMING_OFF 0x64
+
+static int ir_action_dimming_low(IR_READ_PARAM_T *param __attribute__((unused)))
+{
+	say ("dimming_low begin");
+	gDimmingPercent = DIMMING_LOW;
+	say ("dimming_low end");
+	return -1;
+}
+
+
+/*
+my handlers end
+*/
+
+
 void *get_action_handler(const char *action_name)
 {
 	GET_ACTION_HANDLER(IR_ACTIONS);
@@ -243,3 +307,7 @@ int tap_ir_keypress(int r, void *buf)
 
 	return ir_action_default(param);
 }
+
+
+
+
