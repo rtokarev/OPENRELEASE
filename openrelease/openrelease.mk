@@ -57,8 +57,8 @@ else
 endif
 	${CHMOD} +t image/bin/openrelease
 	${MKDIR} -p image/cfg
-	${CP} ${OPENRELEASE_CONFIG} image/cfg/; fi
-	${CP} ${OPENRELEASE_KEYMAP} image/cfg/; fi
+	${CP} ${OPENRELEASE_CONFIG} image/cfg/
+	${CP} ${OPENRELEASE_KEYMAP} image/cfg/
 
 openrelease_clean:
 	${RM} ${openrelease_objects}
