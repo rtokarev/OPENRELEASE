@@ -23,7 +23,7 @@ then
 	do
 		# Try to find out one on the first partiotion of the first usb drive.
 		mkdir -p /tmp/usb1_drive1
-		mount /dev/sda1 /tmp/usb1_drive1
+		mount -t vfat /dev/sda1 /tmp/usb1_drive1
 		if [ -e /tmp/usb1_drive1/etc/openrelease/openrelease.cfg ]
 		then
 			config_file=/tmp/usb1_drive1/etc/openrelease/openrelease.cfg
