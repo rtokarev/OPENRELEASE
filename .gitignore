@@ -1,0 +1,16 @@
+tags
+config.mk
+
+*.o
+librelease/librelease.so
+
+openrelease/openrelease
+release/release
+utils/mkcramfs
+utils/sstrip
+
+image
+image.cramfs
+image.cramfs.lzo
+image.pak
+openrelease.epk
