@@ -42,6 +42,7 @@
 #include <unistd.h>
 
 #include <nano-X.h>
+#include <nxcolors.h>
 
 
 #define SCREEN_MUTE_ON		"kd 00 01\n"
@@ -221,9 +222,55 @@ IR_ACTION_END
 	my handlers begin
 */
 
+/*
+ * GrGetScreenInfoEx(int layer, GR_SCREEN_INFO *sip);
+ * typedef MWSCREENINFO	GR_SCREEN_INFO;
+ * Screen Information. Used by GrGetScreenInfo().
+ *
+ * This structure has the following members. <p>
+ * <B>LGE-Specific</B> : Only rows, cols, bpp and pixtype are used.
+*/
+
+
 static int ir_action_test_nanox(IR_READ_PARAM_T *param __attribute__((unused)))
 {
+	GR_SCREEN_INFO sip;
+	GR_GC_ID gc;
+	GR_WINDOW_ID wid;
+
+
 	say ("test_nanox");
+	GrGetScreenInfoEx(0, &sip);
+	say ("GR_SCREEN_INFO[0]: /n");
+	say ("/trows = %d/n", sip.rows);
+	say ("/tcols = %d/n", sip.cols);
+	say ("/tbpp = %d/n", sip.bpp);
+	say ("/tpixtype = %d/n", sip.pixtype);
+
+	GrGetScreenInfoEx(1, &sip);
+	say ("GR_SCREEN_INFO[1]: /n");
+	say ("/trows = %d/n", sip.rows);
+	say ("/tcols = %d/n", sip.cols);
+	say ("/tbpp = %d/n", sip.bpp);
+	say ("/tpixtype = %d/n", sip.pixtype);
+
+	gc = GrNewGC();
+	GrSetGCForeground (gc, GR_COLOR_BLUE);
+
+	wid = GrNewWindowEx(GR_WM_PROPS_CAPTION, (GR_CHAR *)"Test Nano-X Window", GR_ROOT_WINDOW_ID, 10, 20, 400, 300, GR_COLOR_RED);
+	GrMapWindow (wid);
+/* 
+	Possible won't work. Need to install font to gc. See GrCreateFont for details.
+*/
+	GrText (wid, gc, 50, 50, "Hello World", -1, GR_TFASCII);
+
+	GrSetGCForeground(gc, GR_COLOR_GREEN);
+	GrLine(wid, gc, 30, 40, 150, 100);	
+	GrLine(wid, gc, 40, 40, 40, 80);	
+	GrSetGCForeground(gc, GR_COLOR_BLACK);
+	GrLine(wid, gc, 50, 0, 200, 200);	
+	GrLine(wid, gc, 0, 20, 100, 150);	
+
 	return -1;
 }
 
