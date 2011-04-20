@@ -51,9 +51,8 @@
 #define CONTROL_LOCK_ON		"km 00 01\n"
 #define CONTROL_LOCK_OFF	"km 00 00\n"
 
-#ifdef DEBUG
-#define IR_READ_PARAM_DUMP(param)				\
-	say("IR_READ_PARAM:\n"					\
+#define IR_READ_PARAM_DUMP(level, param)			\
+	say(level, "IR_READ_PARAM:\n"				\
 	    "\tu32Timeout = %u\n"				\
 	    "\tu8KeyType = %u\n"				\
 	    "\tu8KeyValue = %u\n"				\
@@ -68,18 +67,19 @@
 	    (param)->u8TVLinkData[4], (param)->u8TVLinkData[5],	\
 	    (param)->u8TVLinkData[6], (param)->u8TVLinkData[7],	\
 	    (param)->u8TVLinkData[8], (param)->u8TVLinkData[9]);
-#else
-#define IR_READ_PARAM_DUMP(param)
-#endif
 
 #define IR_KEY_TO_ACTION_NAME(name, code, _) _(name)
 #define IR_KEY_ACTION_HANDLER(name, code) \
 	int (* name##_action_handler)(IR_READ_PARAM_T *param) = ir_action_default;
 #define IR_KEY_INIT_ACTION(name, code) \
 	name##_action_handler = get_action_handler(keymap.name);
-#define IR_KEY_DO_ACTION(name, code, param)				\
-	if ((param)->u8IRValue == code || (param)->u8KeyValue == code)	\
-		return name##_action_handler(param);
+#define IR_KEY_DO_ACTION(name, code, param)					\
+	if (((param)->u8IRType != 0 && (param)->u8IRValue == code) ||		\
+	    ((param)->u8KeyType != 0 && (param)->u8KeyValue == code)) {		\
+		say_debug("IR_KEY_DO_ACTION("#name", "#code")");		\
+										\
+		return name##_action_handler(param);				\
+	}
 
 #define IR_ACTION_KEY_PRESSED_HANDLER(name, code)		\
 	static int ir_action_##name(IR_READ_PARAM_T *param) {	\
@@ -98,6 +98,23 @@
 #define KEY_PRESSED_ACTION_HANDLERS(ir_keys) ir_keys(IR_ACTION_KEY_PRESSED_HANDLER)
 #define GET_ACTION_HANDLER(actions) actions(IR_ACTION_NAME_TO_HANDLER)
 
+#define IR_ACTION_DECL(name) \
+	static int ir_action_##name(IR_READ_PARAM_T *param);
+#define IR_ACTION_BEGIN(name)					\
+	static int ir_action_##name(IR_READ_PARAM_T *param)	\
+	{							\
+		say_debug("ir_action_"#name);			\
+		IR_READ_PARAM_DUMP(debug_level, param);		\
+								\
+		if (poweroff)					\
+			return -1;
+
+#define IR_ACTION_END		\
+		usleep(500000);	\
+				\
+		return -1;	\
+	}
+
 
 #define CONFIG_STRUCT
 #include <keymap_tmpl.h>
@@ -110,7 +127,7 @@
 	_(osd_select)
 
 
-static int ir_action_default(IR_READ_PARAM_T *param);
+IR_ACTION_DECL(default);
 
 
 struct keymap keymap = {
@@ -126,22 +143,18 @@ static bool poweroff = false;
 #define CONFIG_PARSE
 #include <keymap_tmpl.h>
 
-static int ir_action_default(IR_READ_PARAM_T *param __attribute__((unused)))
+IR_ACTION_BEGIN(default)
 {
-	IR_READ_PARAM_DUMP(param);
-
 	return 0;
 }
+IR_ACTION_END
 
 KEY_PRESSED_ACTION_HANDLERS(IR_KEYS);
 
-static int ir_action_screen_mute(IR_READ_PARAM_T *param __attribute__((unused)))
+IR_ACTION_BEGIN(screen_mute)
 {
 	static bool screen_muted = false;
 	const char *cmd;
-
-	if (poweroff)
-		return -1;
 
 	if (!screen_muted)
 		cmd = SCREEN_MUTE_ON;
@@ -152,15 +165,15 @@ static int ir_action_screen_mute(IR_READ_PARAM_T *param __attribute__((unused)))
 		return 0;
 
 	screen_muted = !screen_muted;
-
-	usleep(500000);
-
-	return -1;
 }
+IR_ACTION_END
 
-static int ir_action_soft_poweroff(IR_READ_PARAM_T *param __attribute__((unused)))
+static int ir_action_soft_poweroff(IR_READ_PARAM_T *param)
 {
 	const char *cmd;
+
+	say_debug("ir_action_poweroff");
+	IR_READ_PARAM_DUMP(debug_level, param);
 
 	if (!poweroff)
 		cmd = VOLUME_MUTE_ON
@@ -181,13 +194,10 @@ static int ir_action_soft_poweroff(IR_READ_PARAM_T *param __attribute__((unused)
 	return -1;
 }
 
-static int ir_action_osd_select(IR_READ_PARAM_T *param __attribute__((unused)))
+IR_ACTION_BEGIN(osd_select)
 {
 	static bool osd_on = true;
 	const char *cmd;
-
-	if (poweroff)
-		return -1;
 
 	if (osd_on)
 		cmd = OSD_SELECT_OFF;
@@ -198,11 +208,8 @@ static int ir_action_osd_select(IR_READ_PARAM_T *param __attribute__((unused)))
 		return 0;
 
 	osd_on = !osd_on;
-
-	usleep(500000);
-
-	return -1;
 }
+IR_ACTION_END
 
 void *get_action_handler(const char *action_name)
 {
@@ -227,7 +234,12 @@ int tap_ir_keypress(int r, void *buf)
 	if (r == -1)
 		return -1;
 
+	IR_READ_PARAM_DUMP(debug_level, param);
+
 	ACTION_DO(IR_KEYS, param);
+
+	say_error("unknown ir code");
+	IR_READ_PARAM_DUMP(error_level, param);
 
 	return ir_action_default(param);
 }

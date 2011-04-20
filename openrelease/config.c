@@ -54,7 +54,7 @@ int config_init(char *config_file)
 		return -1;
 	}
 
-	say("load `%s' config file", config_file);
+	say_info("load `%s' config file", config_file);
 
 	parse_config(config_file, &config);
 

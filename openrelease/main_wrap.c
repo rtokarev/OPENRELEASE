@@ -102,7 +102,9 @@ void usage(void)
 	       "  -d                    become daemon\n"
 	       "  -h                    print this message and exit\n"
 	       "  -l FILE               log file\n"
-	       "  -v                    print program version and exit\n"
+	       "  -v                    increments the current Verbose level by one.\n"
+	       "                        Multiple -v options are allowed\n"
+	       "  -V                    print program version and exit\n"
 	      );
 }
 
@@ -113,7 +115,7 @@ int __wrap_main(int argc, char *argv[])
 	char *log_file = NULL;
 	bool daemon = false;
 
-	while ((c = getopt(argc, argv, "c:dhl:v")) != -1) {
+	while ((c = getopt(argc, argv, "c:dhl:vV")) != -1) {
 		switch (c) {
 		case 'c':
 			config_file = strdup(optarg);
@@ -132,6 +134,10 @@ int __wrap_main(int argc, char *argv[])
 
 			break;
 		case 'v':
+			++verbose;
+
+			break;
+		case 'V':
 			printf("%s\n", openrelease_version());
 
 			_exit(EXIT_SUCCESS);
@@ -165,9 +171,10 @@ int __wrap_main(int argc, char *argv[])
 	debug_init();
 	tap_ir_init();
 
-	say("dive into RELEASE");
+	say_info("dive into RELEASE");
 
-	__real_main(argc, argv);
+	argv[1] = NULL;
+	__real_main(1, argv);
 
 	_exit(EXIT_SUCCESS);
 

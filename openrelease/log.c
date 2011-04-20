@@ -37,8 +37,12 @@
 #include <unistd.h>
 
 
+unsigned verbose = 0;
+
+
 static FILE *log_f = NULL;
 static int log_fd = -1;
+
 
 int create_log(const char *fname)
 {
@@ -74,9 +78,12 @@ error:
 	return -1;
 }
 
-void say(const char *format, ...)
+void say(unsigned level, const char *format, ...)
 {
 	va_list ap;
+
+	if (level > verbose)
+		return;
 
 	va_start(ap, format);
 
