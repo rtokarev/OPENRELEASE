@@ -232,27 +232,26 @@ IR_ACTION_END
 */
 
 
-static int ir_action_test_nanox(IR_READ_PARAM_T *param __attribute__((unused)))
+IR_ACTION_BEGIN(test_nanox)
 {
 	GR_SCREEN_INFO sip;
 	GR_GC_ID gc;
 	GR_WINDOW_ID wid;
 
-
-	say ("test_nanox");
+	say_info("test_nanox");
 	GrGetScreenInfoEx(0, &sip);
-	say ("GR_SCREEN_INFO[0]: /n");
-	say ("/trows = %d/n", sip.rows);
-	say ("/tcols = %d/n", sip.cols);
-	say ("/tbpp = %d/n", sip.bpp);
-	say ("/tpixtype = %d/n", sip.pixtype);
+	say_info("GR_SCREEN_INFO[0]: /n");
+	say_info("/trows = %d/n", sip.rows);
+	say_info("/tcols = %d/n", sip.cols);
+	say_info("/tbpp = %d/n", sip.bpp);
+	say_info("/tpixtype = %d/n", sip.pixtype);
 
 	GrGetScreenInfoEx(1, &sip);
-	say ("GR_SCREEN_INFO[1]: /n");
-	say ("/trows = %d/n", sip.rows);
-	say ("/tcols = %d/n", sip.cols);
-	say ("/tbpp = %d/n", sip.bpp);
-	say ("/tpixtype = %d/n", sip.pixtype);
+	say_info("GR_SCREEN_INFO[1]: /n");
+	say_info("/trows = %d/n", sip.rows);
+	say_info("/tcols = %d/n", sip.cols);
+	say_info("/tbpp = %d/n", sip.bpp);
+	say_info("/tpixtype = %d/n", sip.pixtype);
 
 	gc = GrNewGC();
 	GrSetGCForeground (gc, GR_COLOR_BLUE);
@@ -271,9 +270,8 @@ static int ir_action_test_nanox(IR_READ_PARAM_T *param __attribute__((unused)))
 	GrLine(wid, gc, 50, 0, 200, 200);	
 	GrLine(wid, gc, 0, 20, 100, 150);	
 
-	return -1;
 }
-
+IR_ACTION_END
 /* 
 	Call service menu 
 */
@@ -281,22 +279,19 @@ static int ir_action_test_nanox(IR_READ_PARAM_T *param __attribute__((unused)))
 extern void SUMODE_CreateInStartWin(void);
 extern void SUMODE_CreateEZAdjustWin(void);
 
-static int ir_action_call_instart(IR_READ_PARAM_T *param __attribute__((unused)))
+IR_ACTION_BEGIN(call_instart)
 {
-	say ("call_instart begin");
 	SUMODE_CreateInStartWin();
-	say ("call_instart end");
-	return -1;
+	say_info("call_instart end");
 }
+IR_ACTION_END
 
-static int ir_action_call_ezadjust(IR_READ_PARAM_T *param __attribute__((unused)))
+IR_ACTION_BEGIN(call_ezadjust)
 {
-	say ("call_ezadjust begin");
 	SUMODE_CreateInStartWin();
-	say ("call_ezadjust end");
-	return -1;
+	say_info("call_ezadjust end");
 }
-
+IR_ACTION_END
 /* 
 	Set gDimmingPercent
 */
@@ -308,14 +303,12 @@ extern unsigned char gDimmingPercent;
 #define DIMMING_LOW 0x41
 #define DIMMING_OFF 0x64
 
-static int ir_action_dimming_low(IR_READ_PARAM_T *param __attribute__((unused)))
+IR_ACTION_BEGIN(dimming_low)
 {
-	say ("dimming_low begin");
 	gDimmingPercent = DIMMING_LOW;
-	say ("dimming_low end");
-	return -1;
+	say_info("dimming_low end");
 }
-
+IR_ACTION_END
 
 /*
 my handlers end
