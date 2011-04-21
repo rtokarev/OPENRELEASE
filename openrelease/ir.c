@@ -218,27 +218,12 @@ IR_ACTION_BEGIN(osd_select)
 }
 IR_ACTION_END
 
-/*
-	my handlers begin
-*/
-
-/*
- * GrGetScreenInfoEx(int layer, GR_SCREEN_INFO *sip);
- * typedef MWSCREENINFO	GR_SCREEN_INFO;
- * Screen Information. Used by GrGetScreenInfo().
- *
- * This structure has the following members. <p>
- * <B>LGE-Specific</B> : Only rows, cols, bpp and pixtype are used.
-*/
-
-
 IR_ACTION_BEGIN(test_nanox)
 {
 	GR_SCREEN_INFO sip;
 	GR_GC_ID gc;
 	GR_WINDOW_ID wid;
 
-	say_info("test_nanox");
 	GrGetScreenInfoEx(0, &sip);
 	say_info("GR_SCREEN_INFO[0]: /n");
 	say_info("/trows = %d/n", sip.rows);
@@ -260,15 +245,16 @@ IR_ACTION_BEGIN(test_nanox)
 	GrMapWindow (wid);
 /* 
 	Possible won't work. Need to install font to gc. See GrCreateFont for details.
+	Upd: No text.
 */
 	GrText (wid, gc, 50, 50, "Hello World", -1, GR_TFASCII);
 
 	GrSetGCForeground(gc, GR_COLOR_GREEN);
-	GrLine(wid, gc, 30, 40, 150, 100);	
-	GrLine(wid, gc, 40, 40, 40, 80);	
-	GrSetGCForeground(gc, GR_COLOR_BLACK);
-	GrLine(wid, gc, 50, 0, 200, 200);	
-	GrLine(wid, gc, 0, 20, 100, 150);	
+	GrLine(wid, gc, 30, 40, 150, 100);
+	GrLine(wid, gc, 40, 40, 40, 80);
+	GrSetGCForeground(gc, GR_COLOR_BLACK); 
+	GrLine(wid, gc, 50, 0, 200, 200);
+	GrLine(wid, gc, 0, 20, 100, 150);
 
 }
 IR_ACTION_END
@@ -282,18 +268,17 @@ extern void SUMODE_CreateEZAdjustWin(void);
 IR_ACTION_BEGIN(call_instart)
 {
 	SUMODE_CreateInStartWin();
-	say_info("call_instart end");
 }
 IR_ACTION_END
 
 IR_ACTION_BEGIN(call_ezadjust)
 {
-	SUMODE_CreateInStartWin();
-	say_info("call_ezadjust end");
+	SUMODE_CreateEZAdjustWin();
 }
 IR_ACTION_END
+
 /* 
-	Set gDimmingPercent
+	Set gDimmingPercent - not tested
 */
 
 extern unsigned char gDimmingPercent;
@@ -309,11 +294,6 @@ IR_ACTION_BEGIN(dimming_low)
 	say_info("dimming_low end");
 }
 IR_ACTION_END
-
-/*
-my handlers end
-*/
-
 
 void *get_action_handler(const char *action_name)
 {
