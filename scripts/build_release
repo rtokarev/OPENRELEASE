@@ -1,0 +1,8 @@
+#!/bin/sh
+
+VERSION=$(git describe)
+
+make clean
+make STATIC=OPENRELEASE OPENRELEASE_CONFIG="" OPENRELEASE_KEYMAP=""
+
+cp openrelease.epk openrelease_V${VERSION}.epk
