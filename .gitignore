@@ -10,7 +10,7 @@ utils/mkcramfs
 utils/sstrip
 
 image
-image.cramfs
-image.cramfs.lzo
-image.pak
-openrelease.epk
+*.cramfs
+*.cramfs.lzo
+*.pak
+*.epk
