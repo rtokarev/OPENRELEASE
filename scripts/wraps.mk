@@ -1,1 +1,2 @@
-WRAPS = API_EME_PreviewDivx
+WRAPS = API_EME_PreviewDivx \
+	mount

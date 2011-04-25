@@ -29,6 +29,7 @@
 
 #include <log.h>
 
+#include <config.h>
 #include <ir.h>
 
 #include <fcntl.h>
@@ -46,6 +47,9 @@
 int __libc_open(const char *pathname, int flags, ...);
 int __libc_close(int fd);
 int __libc_read(int fd, void *buf, size_t count);
+
+int __real_mount(const char *source, const char *target, const char *filesystemtype,
+		 unsigned long mountflags, const void *data);
 
 
 static int ir_fd = -1;
@@ -101,3 +105,19 @@ int read(int fd, void *buf, size_t count)
 
 	return r;
 }
+
+int __wrap_mount(const char *source, const char *target, const char *filesystemtype,
+		 unsigned long mountflags, const void *data)
+{
+	say_debug("mount(%s, %s, %s, %lu, 0x%x)", source, target, filesystemtype, mountflags, data);
+
+	if (!config.enable_auto_mount) {
+		if (strcmp(target, "/mnt/usb1/Drive1") != 0)
+			return -1;
+
+		return 0;
+	}
+
+	return __real_mount(source, target, filesystemtype, mountflags, data);
+}
+

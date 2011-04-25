@@ -29,4 +29,16 @@
 
 #include <wrap.h>
 
+
+int __real_mount(const char *source, const char *target, const char *filesystemtype,
+		 unsigned long mountflags, const void *data);
+
+
+
 WRAP_TO_REAL(API_EME_PreviewDivx, 100)
+
+int __wrap_mount(const char *source, const char *target, const char *filesystemtype,
+		 unsigned long mountflags, const void *data)
+{
+	return __real_mount(source, target, filesystemtype, mountflags, data);
+}
