@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Roman Tokarev <roman.s.tokarev@gmail.com>
+ * Copyright (c) 2011 Roman Tokarev <roman.s.tokarev@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

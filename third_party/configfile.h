@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Teodor Sigaev <teodor@sigaev.ru>
+ * Copyright (c) 2011 Teodor Sigaev <teodor@sigaev.ru>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
