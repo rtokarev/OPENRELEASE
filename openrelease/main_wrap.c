@@ -173,6 +173,7 @@ int __wrap_main(int argc, char *argv[])
 
 	say_info("dive into RELEASE");
 
+	argv[0] = "RELEASE";
 	argv[1] = NULL;
 	__real_main(1, argv);
 

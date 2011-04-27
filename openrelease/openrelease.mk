@@ -49,7 +49,6 @@ ifdef STATIC
 	${LN} -s OPENRELEASE image/RELEASE
 endif
 	${CP} ${openrelease} image/bin/openrelease
-	${CP} ${RELEASE_CFG} image/bin/openrelease.cfg
 ifndef DEBUG
 	${STRIP} image/bin/openrelease
 else

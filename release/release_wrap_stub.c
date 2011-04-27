@@ -30,10 +30,18 @@
 #include <wrap.h>
 
 
+int __real_main(int argc, char *argv[]);
 int __real_mount(const char *source, const char *target, const char *filesystemtype,
 		 unsigned long mountflags, const void *data);
 
 
+
+int __wrap_main(int argc, char *argv[])
+{
+	argv[0] = "RELEASE";
+
+	return __real_main(argc, argv);
+}
 
 WRAP_TO_REAL(API_EME_PreviewDivx, 100)
 

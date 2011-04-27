@@ -4,7 +4,8 @@ RELEASE = release/RELEASE
 ${release}: LIBS = ${librelease} \
 		   -ldl -lm -lstdc++ -lpthread -lrt
 
-${release}: LDWRAP = $(patsubst %,-Wl${comma}--wrap=%,${WRAPS})
+${release}: LDWRAP = $(patsubst %,-Wl${comma}--wrap=%,${WRAPS}) \
+		     -Wl,--wrap=main
 
 ifdef STATIC
 ${release}: LDFLAGS += ${LDFLAGS_COMMON} \
@@ -38,7 +39,6 @@ endif
 	${MKDIR} -p image/bin
 	${CP} ${RELEASE} image/
 	${CP} ${release} image/bin/release
-	${CP} ${RELEASE_CFG} image/bin/release.cfg
 ifndef DEBUG
 	${STRIP} image/bin/release
 else
