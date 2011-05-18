@@ -28,16 +28,46 @@
  */
 
 #include <wrap.h>
-
 #include <config.h>
+#include <RELEASE.h>
+#include <time.h>
 
-WRAP(API_EME_PreviewDivx)
+API_STATE_T __real_API_EME_DecodePreviewImageUsingTask(char * pszFilePath, int x, int y, int width, int height, __BOOLEAN bDisplayImageDirectly, __UINT32 timeStamp);
+
+API_STATE_T __wrap_API_EME_DecodePreviewImageUsingTask(char * pszFilePath, int x, int y, int width, int height, __BOOLEAN bDisplayImageDirectly, __UINT32 timeStamp)
 {
-	SAVE_ARGS();
+	API_STATE_T retval;
+	say_debug ("__wrap_API_EME_DecodePreviewImageUsingTask:");
+	say_debug ("pszFilePath: %s", pszFilePath);
+	say_debug ("x: %d, y: %d, w: %d, h: %d", x, y, width, height);
+	say_debug ("bDisplayImageDirectly: %d", bDisplayImageDirectly);
+	say_debug ("timeStamp: %d", timeStamp);
 
-	if (!config.enable_divx_preview)
-		return;
+	say_debug ("starting __real_API_EME_DecodePreviewImageUsingTask...");
+	retval = __real_API_EME_DecodePreviewImageUsingTask(pszFilePath, x, y, width, height, bDisplayImageDirectly, timeStamp);
+	say_debug ("retval: %s", retval);
+	return retval;	
+}
 
-	CALL_REAL(API_EME_PreviewDivx, 100);
-	RETURN_REAL();
+API_STATE_T __real_API_EME_PreviewDivx(char * pszFilePath, EME_RECT_T rect);
+
+API_STATE_T __wrap_API_EME_PreviewDivx(char * pszFilePath, EME_RECT_T rect)
+{
+	API_STATE_T retval;
+	__UINT32 timeStamp;
+	
+	say_debug ("__wrap_API_EME_PreviewDivx:");
+	say_debug ("pszFilePath: %s", pszFilePath);
+	say_debug ("x: %d, y: %d, w: %d, h: %d", rect.x, rect.y, rect.w, rect.h);
+	if (!config.enable_divx_preview) {
+	    timeStamp = time (NULL);
+		say_debug ("starting __wrap_API_EME_DecodePreviewImageUsingTask...");
+		retval = __wrap_API_EME_DecodePreviewImageUsingTask("/mnt/usb1/Drive1/preview.jpg", rect.x, rect.y, rect.w, rect.h, 1, timeStamp);
+		return retval;
+	}		
+	
+	say_debug ("starting __real_API_EME_PreviewDivx...");
+	retval = __real_API_EME_PreviewDivx(pszFilePath, rect);
+	say_debug ("retval: %s", retval);
+	return retval;
 }

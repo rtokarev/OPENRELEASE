@@ -28,13 +28,14 @@
  */
 
 #include <wrap.h>
+#include <RELEASE.h>
 
 
 int __real_main(int argc, char *argv[]);
 int __real_mount(const char *source, const char *target, const char *filesystemtype,
 		 unsigned long mountflags, const void *data);
-
-
+API_STATE_T __real_API_EME_DecodePreviewImageUsingTask(char * pszFilePath, int x, int y, int width, int height, __BOOLEAN bDisplayImageDirectly, __UINT32 timeStamp);
+API_STATE_T __real_API_EME_PreviewDivx(char * pszFilePath, EME_RECT_T rect);
 
 int __wrap_main(int argc, char *argv[])
 {
@@ -43,10 +44,18 @@ int __wrap_main(int argc, char *argv[])
 	return __real_main(argc, argv);
 }
 
-WRAP_TO_REAL(API_EME_PreviewDivx, 100)
-
 int __wrap_mount(const char *source, const char *target, const char *filesystemtype,
 		 unsigned long mountflags, const void *data)
 {
 	return __real_mount(source, target, filesystemtype, mountflags, data);
+}
+
+API_STATE_T __wrap_API_EME_DecodePreviewImageUsingTask(char * pszFilePath, int x, int y, int width, int height, __BOOLEAN bDisplayImageDirectly, __UINT32 timeStamp)
+{
+	return __real_API_EME_DecodePreviewImageUsingTask(pszFilePath, x, y, width, height, bDisplayImageDirectly, timeStamp);
+}
+
+API_STATE_T __wrap_API_EME_PreviewDivx(char * pszFilePath, EME_RECT_T rect)
+{
+	return __real_API_EME_PreviewDivx(pszFilePath, rect);
 }
