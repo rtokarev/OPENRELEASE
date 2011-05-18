@@ -26,6 +26,7 @@ CFLAGS = -mips32 \
 	 -I. \
 	 -Iinclude \
 	 -I${KERNEL_SOURCES}/drivers/mstar/include \
+	 -I${NANOX_SOURCES}/include \
 	 -DOPENRELEASE_VERSION=\"${VERSION}\"
 
 LDFLAGS_COMMON = -Wl,-EL
