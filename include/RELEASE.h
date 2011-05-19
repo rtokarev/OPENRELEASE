@@ -64,9 +64,9 @@ typedef struct EME_RECT {
 	__UINT16                   y;                    /*     6     2 */
 } EME_RECT_T;
 
-//extern API_STATE_T API_EME_PreviewDivx(char * pszFilePath, EME_RECT_T rect);
-//extern API_STATE_T API_EME_DecodePreviewImage(char * pszFilePath, int x, int y, int width, int height, __BOOLEAN bDisplayImageDirectly, __UINT32 timeStamp);
-//extern API_STATE_T API_EME_DecodePreviewImageUsingTask(char * pszFilePath, int x, int y, int width, int height, __BOOLEAN bDisplayImageDirectly, __UINT32 timeStamp);
+extern API_STATE_T API_EME_PreviewDivx(char * pszFilePath, EME_RECT_T rect);
+extern API_STATE_T API_EME_DecodePreviewImage(char * pszFilePath, int x, int y, int width, int height, __BOOLEAN bDisplayImageDirectly, __UINT32 timeStamp);
+extern API_STATE_T API_EME_DecodePreviewImageUsingTask(char * pszFilePath, int x, int y, int width, int height, __BOOLEAN bDisplayImageDirectly, __UINT32 timeStamp);
 
 /* UI MUTIL */
 
