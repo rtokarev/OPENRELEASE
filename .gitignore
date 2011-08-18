@@ -8,9 +8,6 @@ libopenrelease/libopenrelease.so
 
 release/release
 
-utils/mkcramfs
-utils/sstrip
-
 image
 *.cramfs
 *.cramfs.lzo

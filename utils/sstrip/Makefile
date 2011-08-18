@@ -1,0 +1,8 @@
+CFLAGS = -DELF_DATA=ELFDATA2LSB -DELF_CLASS=ELFCLASS32 -DELF_ARCH=EF_MIPS_ARCH
+
+all: sstrip
+
+.PHONY: clean
+
+clean:
+	rm -rf sstrip
