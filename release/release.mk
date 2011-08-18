@@ -1,52 +1,62 @@
 release = release/release
+sym = release/release.sym
+linker = ld-uClibc.so.0
+
 RELEASE = release/RELEASE
 
-${release}: LIBS = ${librelease} \
-		   -ldl -lm -lstdc++ -lpthread -lrt
+${release}: LIBS = -ldl -lm -lstdc++ -lpthread -lrt
 
-${release}: LDWRAP = $(patsubst %,-Wl${comma}--wrap=%,${WRAPS}) \
-		     -Wl,--wrap=main
+${release}: LDFLAGS = ${LDFLAGS_COMMON} \
+		      -Wl,-dynamic-linker=../lib/${linker} \
+		      -Wl,--start-group \
+		      	${origin_release_libs} \
+		      -Wl,--end-group \
+		      -Wl,-Bstatic \
+		      ${LIBS} \
+		      -Wl,-Bdynamic
 
-ifdef STATIC
-${release}: LDFLAGS += ${LDFLAGS_COMMON} \
-		       -static \
-		       -Wl,--start-group \
-		       ${origin_release_libs} \
-		       ${LIBS} \
-		       -Wl,--end-group \
-		       ${LDWRAP}
-else
-${release}: LDFLAGS += ${LDFLAGS_COMMON} \
-		       -Wl,-dynamic-linker=lib/${linker} \
-		       ${LIBS} \
-	               ${LDWRAP}
-endif
+${release}: ${origin_release_libs} ${origin_release_objects}
+	${CC} ${LDFLAGS} ${origin_release_objects} -o $@
 
-release_sources = release/release_wrap_stub.c
+${sym}: ${release}
+	@echo "\tSYMGEN ${sym}"
+	${SYMGEN} $^ > $@
 
-release_objects = $(patsubst %.c,%.o,${release_sources})
-ifdef STATIC
-${release}: release_objects += ${origin_release_objects}
-endif
+.PHONY: release_install release_clean
 
-${release}: ${release_objects} ${librelease}
-	${CC} ${release_objects} ${LDFLAGS} -o $@
+RELEASE_NEEDED_LIBS = $(shell ${OBJDUMP} -p ${release} | \
+			grep NEEDED | sort | uniq | awk '{print $$2}')
+RELEASE_NEEDED_LIBS_SRC = $(patsubst %,`${cc} -print-file-name=%`,${RELEASE_NEEDED_LIBS})
+RELEASE_NEEDED_LIBS_DST = $(patsubst %,lgapp/lib/%,${RELEASE_NEEDED_LIBS})
 
-release_install: ${release} ${RELEASE}
-ifdef STATIC
-	${RM} image
-endif
-	${MKDIR} -p image/bin
-	${CP} ${RELEASE} image/
-	${CP} ${release} image/bin/release
+.PHONY: release_needed_libs_install release_linker_install
+
+release_needed_libs_install:
+	${MKDIR} -p lgapp/lib
+	${CP} ${RELEASE_NEEDED_LIBS_SRC} lgapp/lib
+#	${CHMOD} +t ${RELEASE_NEEDED_LIBS_DST}
 ifndef DEBUG
-	${STRIP} image/bin/release
-else
-	${MKDIR} image/src
-	${CP} ${release_sources} image/src/
+	${SSTRIP} ${RELEASE_NEEDED_LIBS_DST}
 endif
-	${CHMOD} +t image/bin/release
+
+release_linker_install:
+	${MKDIR} -p lgapp/lib
+	${CP} `${cc} -print-file-name=${linker}` lgapp/lib
+ifndef DEBUG
+	${SSTRIP} lgapp/lib/${linker}
+endif
+
+release_install: release_needed_libs_install release_linker_install
+
+release_install: ${release} ${RELEASE} ${sym}
+	${MKDIR} -p lgapp/bin
+	${CP} ${RELEASE} lgapp/
+	${CP} ${release} lgapp/bin/RELEASE
+	${CP} ${sym} lgapp/bin/RELEASE.sym
+	${CHMOD} +t lgapp/bin/RELEASE
+ifndef DEBUG
+	${SSTRIP} lgapp/bin/RELEASE
+endif
 
 release_clean:
-	${RM} ${release_objects}
-	${RM} ${release}
+	${RM} ${release} ${sym}

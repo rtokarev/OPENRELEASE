@@ -1,5 +1,5 @@
-#ifndef _WRAP_H_
-#define _WRAP_H_
+#ifndef _MEM_PATCH_H_
+#define _MEM_PATCH_H_
 /*
  * Copyright (c) 2011 Roman Tokarev <roman.s.tokarev@gmail.com>
  * All rights reserved.
@@ -29,34 +29,10 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <functions2wrap.h>
+void mmaps_init(void);
 
-
-#define WRAP_DECL(rettype, foo_name, params...)	\
-	rettype __real_##foo_name(params);	\
-	rettype __wrap_##foo_name(params);
-
-#define WRAP(rettype, foo_name, params...)		\
-	__asm__ (					\
-		".text\n"				\
-		".global __real_"#foo_name"\n"		\
-		".type __real_"#foo_name", @function\n"	\
-		"__real_"#foo_name":\n"			\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-	);						\
-							\
-	rettype __wrap_##foo_name(params)		\
-
-
-void wrap_init(void);
+void vmem_patch(void *vaddr, int value);
+void vmem_patch2(void *vaddr, int value);
+void rmem_patch(void *raddr, int value);
 
 #endif

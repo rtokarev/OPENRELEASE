@@ -30,9 +30,10 @@
 #include <third_party/configfile.h>
 
 BEGIN_CONFIG(config)
+	PARAM_CONFIG(symfile, char *, NULL, parse_string, parse_string)
 	PARAM_CONFIG(input, char *, "/tmp/openrelease.in", parse_string, print_string)
 	PARAM_CONFIG(output, char *, NULL, parse_string, print_string)
-	PARAM_CONFIG(keymap, char *, "cfg/openrelease_keymap.cfg", parse_string, print_string)
+	PARAM_CONFIG(keymap, char *, NULL, parse_string, print_string)
 	PARAM_CONFIG(enable_auto_mount, unsigned, 1, parse_unsigned, print_unsigned)
 	PARAM_CONFIG(enable_divx_preview, unsigned, 1, parse_unsigned, print_unsigned)
 END_CONFIG

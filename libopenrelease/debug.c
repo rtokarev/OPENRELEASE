@@ -27,73 +27,48 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <log.h>
+#include <debug.h>
+
+#include <config.h>
 
 #include <fcntl.h>
-#include <stdarg.h>
-#include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
 
-unsigned verbose = 0;
+static int debug_fd = -1;
 
 
-static FILE *log_f = NULL;
-static int log_fd = -1;
-
-
-int create_log(const char *fname)
+void debug_init(void)
 {
-	int r;
-
-	if (fname == NULL)
-		return 0;
-
-	log_fd = open(fname, O_CREAT | O_WRONLY | O_APPEND);
-	if (log_fd == -1)
-		goto error;
-
-	if (fcntl(log_fd, F_SETFD, FD_CLOEXEC) == -1)
-		goto error;
-
-	log_f = fdopen(log_fd, "a");
-	if (log_f == NULL)
-		goto error;
-
-	r = setvbuf(log_f, (char *)NULL, _IOLBF, 0);
-	if (r != 0)
-		goto error;
-
-	return 0;
-
-error:
-	fprintf(stderr, "can't open log file `%s': %m\n", fname);
-	if (log_f)
-		fclose(log_f);
-	else if (log_fd)
-		close(log_fd);
-
-	return -1;
+	if (config.input) {
+		debug_fd = open(config.input, O_WRONLY);
+		if (debug_fd == -1)
+			say_error("debug_init: can't open `%s': %m", config.input);
+	}
 }
 
-void say(unsigned level, const char *format, ...)
+int debug_write(const char *data)
 {
-	va_list ap;
+	if (debug_fd == -1)
+		return -1;
 
-	if (level > verbose)
-		return;
+	size_t len = strlen(data);
+	ssize_t r = write(debug_fd, data, len);
 
-	va_start(ap, format);
+	if (r == -1) {
+		say_error("debug_write: can't write: %m");
 
-	if (log_f) {
-		vfprintf(log_f, format, ap);
-		fprintf(log_f, "\n");
-	} else {
-		vfprintf(stderr, format, ap);
-		fprintf(stderr, "\n");
+		return -1;
 	}
 
-	va_end(ap);
+	if (r != (ssize_t)len) {
+		say_error("debug_write: some data hasn't been written");
+
+		return -1;
+	}
+
+	return 0;
 }

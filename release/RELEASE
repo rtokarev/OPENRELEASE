@@ -1,7 +1,10 @@
 #!/bin/sh
 
-cd ${0%/*}
+# Force unset of LOAD_SYM because generated .sym file
+#  isn't correctly processed by the RELEASE.
+unset LOAD_SYM
 
-LD_LIBRARY_PATH=lib
+cd ${0%/*}/bin
 
-exec bin/release
+export LD_LIBRARY_PATH=../lib:${LD_LIBRARY_PATH}
+exec ./RELEASE $@

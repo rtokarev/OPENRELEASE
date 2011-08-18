@@ -29,13 +29,18 @@
 
 #include <config.h>
 #include <debug.h>
-#include <ir.h>
+#include <key_action.h>
+#include <libc_wrap.h>
 #include <log.h>
+#include <mem_patch.h>
+#include <symfile.h>
 #include <version.h>
+#include <wrap.h>
 
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,9 +50,10 @@
 #include <unistd.h>
 
 
-int daemonize(int nochdir, int noclose);
+int (* __real_main)(int, char **, char **) = NULL;
 
-int __real_main(int argc, char *argv[]);
+
+int daemonize(int nochdir, int noclose);
 
 
 static int mfifo(const char *name, int mode)
@@ -92,12 +98,17 @@ static int stdio_init(const char *ifname, const char *ofname)
 	     dup2(ofd, STDERR_FILENO) == -1))
 		return -1;
 
+	setvbuf(stdout, (char *)NULL, _IOLBF, 0);
+	setvbuf(stderr, (char *)NULL, _IONBF, 0);
+
 	return 0;
 }
 
 void usage(void)
 {
-	printf("Usage: OPENRELEASE [OPTIONS]\n"
+	printf("Usage: OPENRELEASE [OPENRELEASE OPTIONS] -- [RELEASE OPTIONS]\n"
+	       "\n"
+	       "[OPENRELEASE OPTIONS]:\n"
 	       "  -c FILE               config file\n"
 	       "  -d                    become daemon\n"
 	       "  -h                    print this message and exit\n"
@@ -108,7 +119,7 @@ void usage(void)
 	      );
 }
 
-int __wrap_main(int argc, char *argv[])
+int __wrap_main(int argc, char *argv[], char *envp[])
 {
 	int c;
 	char *config_file = NULL;
@@ -141,8 +152,12 @@ int __wrap_main(int argc, char *argv[])
 			printf("%s\n", openrelease_version());
 
 			_exit(EXIT_SUCCESS);
-		default:
+		case '?':
 			usage();
+
+			_exit(EXIT_FAILURE);
+		default:
+			say_error("unmatched option: -%c", c);
 
 			_exit(EXIT_FAILURE);
 		}
@@ -168,14 +183,26 @@ int __wrap_main(int argc, char *argv[])
 		_exit(EXIT_FAILURE);
 	}
 
+	mmaps_init();
+
+	symfile_load(config.symfile);
+	wrap_init();
+
 	debug_init();
-	tap_ir_init();
+	key_action_init();
 
 	say_info("dive into RELEASE");
 
-	argv[0] = "RELEASE";
-	argv[1] = NULL;
-	__real_main(1, argv);
+	unsetenv("LD_PRELOAD");
+
+	argc = 1;
+	if (optind != argc) {
+		memmove(&argv[1], &argv[optind], (optind - argc) * sizeof(argv[0]));
+		argc += optind - argc;
+	}
+	argv[argc] = NULL;
+
+	__real_main(argc, argv, envp);
 
 	_exit(EXIT_SUCCESS);
 

@@ -53,6 +53,9 @@ KeyValuePair *parseCfgFile(const char *file)
 {
 	FILE *stream __attribute__((cleanup(_close_stream))) = NULL;
 
+	if (file == NULL)
+		return NULL;
+
 	stream = fopen(file, "r");
 	if (stream == NULL) {
 		say_error("can't open `%s': %m", file);
@@ -161,8 +164,12 @@ char *parse_string(char *name __attribute__((unused)), char *str, char *defval, 
 	if (str == NULL) {
 		if (defval != NULL)
 			defval = strdup(defval);
-	} else
-		defval = strdup(str);
+	} else {
+		if (strcmp(str, "NULL") == 0)
+			defval = NULL;
+		else
+			defval = strdup(str);
+	}
 
 	return defval;
 }

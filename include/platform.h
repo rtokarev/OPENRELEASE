@@ -1,3 +1,5 @@
+#ifndef _PLATFORM_H_
+#define _PLATFORM_H_
 /*
  * Copyright (c) 2011 Roman Tokarev <roman.s.tokarev@gmail.com>
  * All rights reserved.
@@ -27,46 +29,12 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <debug.h>
+#define SATURN6	1
+#define SATURN7 2
+#define BCM	3
 
-#include <config.h>
+#if PLATFORM != SATURN6 && PLATFORM != SATURN7 && PLATFORM != BCM
+# error Unsupported platform
+#endif
 
-#include <fcntl.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
-
-static int debug_fd = -1;
-
-
-void debug_init(void)
-{
-	debug_fd = open(config.input, O_WRONLY);
-	if (debug_fd == -1)
-		say_error("debug_init: can't open `%s': %m", config.input);
-}
-
-int debug_write(const char *data)
-{
-	if (debug_fd == -1)
-		return -1;
-
-	size_t len = strlen(data);
-	ssize_t r = write(debug_fd, data, len);
-
-	if (r == -1) {
-		say_error("debug_write: can't write: %m");
-
-		return -1;
-	}
-
-	if (r != (ssize_t)len) {
-		say_error("debug_write: some data hasn't been written");
-
-		return -1;
-	}
-
-	return 0;
-}
+#endif

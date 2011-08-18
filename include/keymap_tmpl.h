@@ -29,12 +29,12 @@
 
 #include <third_party/configfile.h>
 
-#include <ir.h>
+#include <keys.h>
 
 #define KEYMAP_PARAM(name, code) PARAM_CONFIG(name, char *, "default", parse_string, print_string)
 
 BEGIN_CONFIG(keymap)
-	IR_KEYS(KEYMAP_PARAM)
+	KEYS(KEYMAP_PARAM)
 END_CONFIG
 
 #undef KEYMAP_PARAM

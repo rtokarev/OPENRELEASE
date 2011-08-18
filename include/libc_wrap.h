@@ -1,3 +1,5 @@
+#ifndef _MAIN_WRAP_H_
+#define _MAIN_WRAP_H_
 /*
  * Copyright (c) 2011 Roman Tokarev <roman.s.tokarev@gmail.com>
  * All rights reserved.
@@ -27,26 +29,9 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <wrap.h>
+extern int (* __real_main)(int, char **, char **);
 
 
-int __real_main(int argc, char *argv[]);
-int __real_mount(const char *source, const char *target, const char *filesystemtype,
-		 unsigned long mountflags, const void *data);
+int __wrap_main(int argc, char *argv[], char *envp[]);
 
-
-
-int __wrap_main(int argc, char *argv[])
-{
-	argv[0] = "RELEASE";
-
-	return __real_main(argc, argv);
-}
-
-WRAP_TO_REAL(API_EME_PreviewDivx, 100)
-
-int __wrap_mount(const char *source, const char *target, const char *filesystemtype,
-		 unsigned long mountflags, const void *data)
-{
-	return __real_mount(source, target, filesystemtype, mountflags, data);
-}
+#endif

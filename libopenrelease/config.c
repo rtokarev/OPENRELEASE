@@ -1,5 +1,3 @@
-#ifndef _WRAP_H_
-#define _WRAP_H_
 /*
  * Copyright (c) 2011 Roman Tokarev <roman.s.tokarev@gmail.com>
  * All rights reserved.
@@ -29,34 +27,52 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <functions2wrap.h>
+#include <config.h>
+
+#include <libgen.h>
+#include <stdio.h>
+#include <unistd.h>
 
 
-#define WRAP_DECL(rettype, foo_name, params...)	\
-	rettype __real_##foo_name(params);	\
-	rettype __wrap_##foo_name(params);
-
-#define WRAP(rettype, foo_name, params...)		\
-	__asm__ (					\
-		".text\n"				\
-		".global __real_"#foo_name"\n"		\
-		".type __real_"#foo_name", @function\n"	\
-		"__real_"#foo_name":\n"			\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-	);						\
-							\
-	rettype __wrap_##foo_name(params)		\
+struct config config = {
+#define CONFIG_DEFAULTS
+#include <config_tmpl.h>
+};
 
 
-void wrap_init(void);
+#define CONFIG_PARSE
+#include <config_tmpl.h>
 
-#endif
+int config_init(char *config_file)
+{
+	if (!config_file)
+		return 0;
+
+	if (access(config_file, F_OK | R_OK)) {
+		say_error("can't access `%s': %m\n", config_file);
+
+		return -1;
+	}
+
+	say_info("load `%s' config file", config_file);
+
+	parse_config(config_file, &config);
+
+	if (config.keymap == NULL)
+		return 0;
+
+	char *keymap = malloc(MAX_LEN);
+
+	if (keymap == NULL) {
+		say_error("can't build path for keymap file: %m");
+
+		return -1;
+	}
+
+	snprintf(keymap, MAX_LEN, "%s/%s", dirname(config_file), config.keymap);
+
+	free(config.keymap);
+	config.keymap = keymap;
+
+	return 0;
+}

@@ -1,5 +1,5 @@
-#ifndef _WRAP_H_
-#define _WRAP_H_
+#ifndef _SYMFILE_H_
+#define _SYMFILE_H_
 /*
  * Copyright (c) 2011 Roman Tokarev <roman.s.tokarev@gmail.com>
  * All rights reserved.
@@ -29,34 +29,34 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <functions2wrap.h>
+#include <unistd.h>
 
 
-#define WRAP_DECL(rettype, foo_name, params...)	\
-	rettype __real_##foo_name(params);	\
-	rettype __wrap_##foo_name(params);
+struct sym_entry {
+	void *addr;
+	void *end;
+	off_t sym_name_off;
+};
 
-#define WRAP(rettype, foo_name, params...)		\
-	__asm__ (					\
-		".text\n"				\
-		".global __real_"#foo_name"\n"		\
-		".type __real_"#foo_name", @function\n"	\
-		"__real_"#foo_name":\n"			\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-	);						\
-							\
-	rettype __wrap_##foo_name(params)		\
+struct sym_table {
+	unsigned n_symbols;
+	struct sym_entry *sym_entry;
+	unsigned *hash;
+	unsigned n_dwarf_lst;
+	struct {
+		unsigned d1;
+		unsigned d2;
+	} *dwarf_lst;
+	unsigned char *dwarf_data;
+	char *sym_name;
+};
 
 
-void wrap_init(void);
+extern struct sym_table sym_table;
+
+
+int symfile_load(const char *sym_fname);
+void *symfile_addr_by_name(const char *name);
+const char *symfile_name_by_addr(const void *addr);
 
 #endif

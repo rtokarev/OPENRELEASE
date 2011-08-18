@@ -1,17 +1,5 @@
-CC = mipsel-linux-gcc
-cc = mipsel-linux-gcc
-AR = mipsel-linux-ar
-OBJDUMP = mipsel-linux-objdump
-STRIP = utils/sstrip
-
 include scripts/cmd.mk
-include scripts/default.mk
-include scripts/wraps.mk
--include config.mk
-
-comma = ,
-
-linker = ld-uClibc.so.0
+include config.mk
 
 origin_release_libs = ${RELEASE_LIB}/*.a
 origin_release_objects = ${RELEASE_LIB}/*.o
@@ -21,12 +9,14 @@ VERSION_BASE = $(shell git describe | sed -e 's/-.*//')
 
 CFLAGS = -mips32 \
 	 -std=c99 \
+	 -fPIC \
          -Wall -Wextra -Werror \
 	 -D_GNU_SOURCE \
 	 -I. \
 	 -Iinclude \
-	 -I${KERNEL_SOURCES}/drivers/mstar/include \
-	 -DOPENRELEASE_VERSION=\"${VERSION}\"
+	 -include platform.h \
+	 -DOPENRELEASE_VERSION=\"${VERSION}\" \
+	 -DPLATFORM=${PLATFORM}
 
 LDFLAGS_COMMON = -Wl,-EL
 
@@ -36,22 +26,21 @@ else
 CFLAGS += -O2
 endif
 
-all: utils openrelease.epk
+all: libopenrelease
 
-utils:
-	${MAKE} -C utils
-
-include librelease/librelease.mk
+include utils/utils.mk
 include release/release.mk
-include openrelease/openrelease.mk
-include scripts/image.mk
+include libopenrelease/libopenrelease.mk
+include scripts/lgapp.mk
+
+libopenrelease: ${libopenrelease}
+release: sstrip lgapp.tar.gz
 
 #ifeq ($(filter depend clean,${MAKECMDGOALS}),)
 # include .depend
 #endif
 
-.PHONY: all clean utils
+.PHONY: all release libopenrelease clean
 
-clean: librelease_clean release_clean openrelease_clean image_clean
+clean: utils_clean release_clean libopenrelease_clean lgapp_clean
 	${RM} .depend
-	${MAKE} -C utils clean

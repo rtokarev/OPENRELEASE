@@ -29,95 +29,73 @@
 
 #include <log.h>
 
-#include <config.h>
-#include <ir.h>
-
 #include <fcntl.h>
-#include <features.h>
 #include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 
-#ifndef O_LARGEFILE
-# define O_LARGEFILE 0x2000
-#endif
+unsigned verbose = 0;
 
 
-int __libc_open(const char *pathname, int flags, ...);
-int __libc_close(int fd);
-int __libc_read(int fd, void *buf, size_t count);
-
-int __real_mount(const char *source, const char *target, const char *filesystemtype,
-		 unsigned long mountflags, const void *data);
+static FILE *log_f = NULL;
+static int log_fd = -1;
 
 
-static int ir_fd = -1;
-
-
-int open(const char *pathname, int flags, ...)
+int create_log(const char *fname)
 {
-	va_list ap;
-	mode_t mode = 0;
+	int r;
 
-	if (flags & O_CREAT) {
-		va_start(ap, flags);
-		mode = va_arg(ap, mode_t);
-		va_end(ap);
-	}
-
-	int fd = __libc_open(pathname, flags, mode);
-
-	if (strcmp(pathname, "/dev/ir") == 0)
-		ir_fd = fd;
-
-	return fd;
-}
-
-int open64(const char *pathname, int flags, ...)
-{
-	va_list ap;
-	mode_t mode = 0;
-
-	if (flags & O_CREAT) {
-		va_start(ap, flags);
-		mode = va_arg(ap, mode_t);
-		va_end(ap);
-	}
-
-	return open(pathname, flags, mode);
-}
-
-int close(int fd)
-{
-	if (fd == ir_fd)
-		ir_fd = -1;
-
-	return __libc_close(fd);
-}
-
-int read(int fd, void *buf, size_t count)
-{
-	int r = __libc_read(fd, buf, count);
-
-	if (fd == ir_fd)
-		return tap_ir_keypress(r, buf);
-
-	return r;
-}
-
-int __wrap_mount(const char *source, const char *target, const char *filesystemtype,
-		 unsigned long mountflags, const void *data)
-{
-	say_debug("mount(%s, %s, %s, %lu, 0x%x)", source, target, filesystemtype, mountflags, data);
-
-	if (!config.enable_auto_mount) {
-		if (strcmp(target, "/mnt/usb1/Drive1") != 0)
-			return -1;
-
+	if (fname == NULL)
 		return 0;
-	}
 
-	return __real_mount(source, target, filesystemtype, mountflags, data);
+	log_fd = open(fname, O_CREAT | O_WRONLY | O_APPEND);
+	if (log_fd == -1)
+		goto error;
+
+	if (fcntl(log_fd, F_SETFD, FD_CLOEXEC) == -1)
+		goto error;
+
+	log_f = fdopen(log_fd, "a");
+	if (log_f == NULL)
+		goto error;
+
+	r = setvbuf(log_f, (char *)NULL, _IOLBF, 0);
+	if (r != 0)
+		goto error;
+
+	return 0;
+
+error:
+	fprintf(stderr, "can't open log file `%s': %m\n", fname);
+	if (log_f)
+		fclose(log_f);
+	else if (log_fd)
+		close(log_fd);
+
+	return -1;
 }
 
+void say(unsigned level, const char *format, ...)
+{
+	va_list ap;
+
+	if (level > verbose)
+		return;
+
+	va_start(ap, format);
+
+	if (log_f) {
+		fprintf(log_f, "%u: ", getpid());
+		vfprintf(log_f, format, ap);
+		fprintf(log_f, "\n");
+	} else {
+		fprintf(stderr, "%u: ", getpid());
+		vfprintf(stderr, format, ap);
+		fprintf(stderr, "\n");
+	}
+
+	va_end(ap);
+}

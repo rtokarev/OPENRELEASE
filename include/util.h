@@ -1,5 +1,5 @@
-#ifndef _WRAP_H_
-#define _WRAP_H_
+#ifndef _UTIL_H_
+#define _UTIL_H_
 /*
  * Copyright (c) 2011 Roman Tokarev <roman.s.tokarev@gmail.com>
  * All rights reserved.
@@ -29,34 +29,13 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <functions2wrap.h>
+#define CALL(rettype, foo_name, params...)					\
+	rettype (* foo)(params) = (rettype (*)(params))sym2addr(#foo_name);	\
+	foo
 
+void *sym2addr(const char *name);
+const char *addr2sym(const void *addr);
 
-#define WRAP_DECL(rettype, foo_name, params...)	\
-	rettype __real_##foo_name(params);	\
-	rettype __wrap_##foo_name(params);
-
-#define WRAP(rettype, foo_name, params...)		\
-	__asm__ (					\
-		".text\n"				\
-		".global __real_"#foo_name"\n"		\
-		".type __real_"#foo_name", @function\n"	\
-		"__real_"#foo_name":\n"			\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-			"nop\n"				\
-	);						\
-							\
-	rettype __wrap_##foo_name(params)		\
-
-
-void wrap_init(void);
+const char *backtrace(void);
 
 #endif

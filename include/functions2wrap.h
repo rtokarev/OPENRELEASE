@@ -1,3 +1,5 @@
+#ifndef _FUNCTIONS2WRAP_H_
+#define _FUNCTIONS2WRAP_H_
 /*
  * Copyright (c) 2011 Roman Tokarev <roman.s.tokarev@gmail.com>
  * All rights reserved.
@@ -27,49 +29,26 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <config.h>
+#if PLATFORM == SATURN6
 
-#include <libgen.h>
-#include <stdio.h>
-#include <unistd.h>
+# define FUNCTIONS2WRAP_CUSTOM(_)		\
+	_(API_EME_PreviewDivx)
 
+#elif PLATFORM == SATURN7
 
-struct config config = {
-#define CONFIG_DEFAULTS
-#include <config_tmpl.h>
-};
+# define FUNCTIONS2WRAP_CUSTOM(_)
 
+#elif PLATFORM == BCM
 
-#define CONFIG_PARSE
-#include <config_tmpl.h>
+# define FUNCTIONS2WRAP_CUSTOM(_)
 
-int config_init(char *config_file)
-{
-	if (!config_file)
-		return 0;
+#endif
 
-	if (access(config_file, F_OK | R_OK)) {
-		say_error("can't access `%s': %m\n", config_file);
+#define FUNCTIONS2WRAP(_)		\
+	/* Common functions */		\
+	_(_MICOM_ProcessSingleKey)	\
+					\
+	/* Custom functions */		\
+	FUNCTIONS2WRAP_CUSTOM(_)
 
-		return -1;
-	}
-
-	say_info("load `%s' config file", config_file);
-
-	parse_config(config_file, &config);
-
-	char *keymap = malloc(MAX_LEN);
-
-	if (keymap == NULL) {
-		say_error("can't build path for keymap file: %m");
-
-		return -1;
-	}
-
-	snprintf(keymap, MAX_LEN, "%s/%s", dirname(config_file), config.keymap);
-
-	free(config.keymap);
-	config.keymap = keymap;
-
-	return 0;
-}
+#endif

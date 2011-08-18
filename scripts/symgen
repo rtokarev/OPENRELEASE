@@ -1,0 +1,44 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+my $MAGIC = 0xB12791EE;
+
+my $appname = shift;
+
+my $TOOLCHAIN = $ENV{'TOOLCHAIN'};
+
+
+my @symentries = ();
+my @names = ();
+my %uniq_names;
+my $name_off = 0;
+foreach (`${TOOLCHAIN}readelf -W -s $appname`) {
+	next if not m/\d+:\s+([0-9a-f]+)\s+(\d+)\s+\S+\s+\S+\s+\S+\s+\S+\s+(\S+)/;
+
+	my $addr = hex("0x$1");
+	my $size = $2;
+	my $name = $3;
+
+	next if exists $uniq_names{$name};
+
+	$uniq_names{$name} = 1;
+
+	push @names, $name;
+	push @symentries, $addr, $addr + $size, $name_off;
+
+	$name_off += length($name) + 1;
+}
+
+my $n_symbols = scalar @symentries / 3;
+
+my $has_hash = 0;
+my $has_dwarf = 0;
+
+my $tail_size = 4 + 4 + $name_off;
+my $size = 12 * $n_symbols + $tail_size;
+
+print pack "LLLLL (L3)$n_symbols LL (Z*)$n_symbols",
+	$MAGIC, 0, $size, $n_symbols, $tail_size, @symentries,
+	$has_hash, $has_dwarf,
+	@names;

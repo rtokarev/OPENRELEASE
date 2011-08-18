@@ -31,13 +31,29 @@
 
 #include <config.h>
 
-WRAP(API_EME_PreviewDivx)
+#include <RELEASE.h>
+
+#include <stdlib.h>
+#include <unistd.h>
+
+
+#if PLATFORM == SATURN6
+
+WRAP_DECL(API_STATE_T, API_EME_PreviewDivx, char *pszFilePath, EME_RECT_T rect);
+
+#endif
+
+
+#if PLATFORM == SATURN6
+
+WRAP(API_STATE_T, API_EME_PreviewDivx, char *pszFilePath, EME_RECT_T rect)
 {
-	SAVE_ARGS();
+	say_debug("API_EME_PreviewDivx");
 
 	if (!config.enable_divx_preview)
-		return;
+		return API_ERROR;
 
-	CALL_REAL(API_EME_PreviewDivx, 100);
-	RETURN_REAL();
+	return __real_API_EME_PreviewDivx(pszFilePath, rect);
 }
+
+#endif

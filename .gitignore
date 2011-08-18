@@ -2,10 +2,12 @@ tags
 config.mk
 
 *.o
-librelease/librelease.so
 
-openrelease/openrelease
+librelease/librelease.so
+libopenrelease/libopenrelease.so
+
 release/release
+
 utils/mkcramfs
 utils/sstrip
 
