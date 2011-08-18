@@ -1,5 +1,6 @@
+include scripts/default.mk
+-include config.mk
 include scripts/cmd.mk
-include config.mk
 
 origin_release_libs = ${RELEASE_LIB}/*.a
 origin_release_objects = ${RELEASE_LIB}/*.o
