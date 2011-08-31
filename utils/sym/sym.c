@@ -24,7 +24,7 @@ void usage(void)
 
 int main(int argc, char *argv[])
 {
-	char c;
+	int c;
 	int all = 0;
 	void *address = NULL;
 	char *symfile = NULL;
