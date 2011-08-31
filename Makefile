@@ -21,8 +21,8 @@ CFLAGS = -mips32 \
 
 LDFLAGS_COMMON = -Wl,-EL
 
-ifdef DEBUG
-CFLAGS += -ggdb3 -DDEBUG
+ifeq (${DEBUG},1)
+CFLAGS += -O0 -ggdb3 -DDEBUG
 else
 CFLAGS += -O2
 endif
