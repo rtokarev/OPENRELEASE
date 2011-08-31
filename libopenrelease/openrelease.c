@@ -33,6 +33,7 @@
 #include <libc_wrap.h>
 #include <log.h>
 #include <mem_patch.h>
+#include <stdio_wrap.h>
 #include <symfile.h>
 #include <version.h>
 #include <wrap.h>
@@ -55,54 +56,6 @@ int (* __real_main)(int, char **, char **) = NULL;
 
 int daemonize(int nochdir, int noclose);
 
-
-static int mfifo(const char *name, int mode)
-{
-	if (mkfifo(name, S_IFIFO|S_IRWXU) == -1 && errno != EEXIST)
-		return -1;
-
-	return open(name, mode);
-}
-
-static void _close_fd(int *fd)
-{
-	if (*fd != -1)
-		(void)close(*fd);
-}
-
-static int stdio_init(const char *ifname, const char *ofname)
-{
-	int ifd __attribute__((cleanup(_close_fd))) = -1,
-	    ofd __attribute__((cleanup(_close_fd))) = -1;
-
-	if (ifname &&
-	    (ifd = mfifo(ifname, O_RDWR)) == -1) {
-		say_error("can't open `%s': %m", ifname);
-
-		return -1;
-	}
-
-	if (ofname &&
-	    (ofd = open(ofname, O_WRONLY | O_CREAT | O_TRUNC)) == -1) {
-		say_error("can't open `%s': %m", ofname);
-
-		return -1;
-	}
-
-	if (ifd != -1 &&
-	    dup2(ifd, STDIN_FILENO) == -1)
-		return -1;
-
-	if (ofd != -1 &&
-	    (dup2(ofd, STDOUT_FILENO) == -1 ||
-	     dup2(ofd, STDERR_FILENO) == -1))
-		return -1;
-
-	setvbuf(stdout, (char *)NULL, _IOLBF, 0);
-	setvbuf(stderr, (char *)NULL, _IONBF, 0);
-
-	return 0;
-}
 
 void usage(void)
 {
@@ -177,11 +130,8 @@ int __wrap_main(int argc, char *argv[], char *envp[])
 
 	config_init(config_file);
 
-	if (stdio_init(config.input, config.output) == -1) {
-		say_error("stdio_init failed");
-
-		_exit(EXIT_FAILURE);
-	}
+	if (stdio_wrap(config.input, config.output) == -1)
+		say_error("stdio_wrap failed");
 
 	mmaps_init();
 

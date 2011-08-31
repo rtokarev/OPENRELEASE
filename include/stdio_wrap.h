@@ -1,3 +1,5 @@
+#ifndef _STDIO_WRAP_H_
+#define _STDIO_WRAP_H_
 /*
  * Copyright (c) 2011 Roman Tokarev <roman.s.tokarev@gmail.com>
  * All rights reserved.
@@ -27,18 +29,6 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <third_party/configfile.h>
+int stdio_wrap(const char *ifname, const char *ofname);
 
-BEGIN_CONFIG(config)
-	PARAM_CONFIG(symfile, char *, NULL, parse_string, parse_string)
-	PARAM_CONFIG(input, char *, "/tmp/openrelease.in", parse_string, print_string)
-	PARAM_CONFIG(output, char *, NULL, parse_string, print_string)
-	PARAM_CONFIG(debug_ipaddr, char *, NULL, parse_string, print_string)
-	PARAM_CONFIG(debug_port, int, 0, parse_unsigned, print_unsigned)
-	PARAM_CONFIG(keymap, char *, NULL, parse_string, print_string)
-	PARAM_CONFIG(enable_auto_mount, unsigned, 1, parse_unsigned, print_unsigned)
-	PARAM_CONFIG(enable_divx_preview, unsigned, 1, parse_unsigned, print_unsigned)
-END_CONFIG
-
-#define CONFIG_CLEAN
-#include <third_party/configfile.h>
+#endif
