@@ -7,8 +7,16 @@ librelease/librelease.so
 libopenrelease/libopenrelease.so
 
 release/release
+release/release.sym
 
-image
+utils/sstrip/sstrip
+utils/mkcramfs/mkcramfs
+utils/sym/sym
+
+builds
+
+lgapp
+*.tar.gz
 *.cramfs
 *.cramfs.lzo
 *.pak
