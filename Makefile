@@ -9,6 +9,7 @@ VERSION = $(shell git describe)
 
 CFLAGS = -mips32 \
 	 -std=c99 \
+	 -fPIC \
          -Wall -Wextra -Werror \
 	 -D_GNU_SOURCE \
 	 -I. \

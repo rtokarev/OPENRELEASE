@@ -18,10 +18,7 @@ libopenrelease_sources = libopenrelease/config.c \
 
 libopenrelease_objects = $(patsubst %.c,%.o,${libopenrelease_sources})
 
-${libopenrelease}: LIBS = -ldl \
-			  -Wl,-Bstatic \
-				-lutil \
-			  -Wl,-Bdynamic
+${libopenrelease}: LIBS = -ldl -lutil
 
 ${libopenrelease}: LDFLAGS = ${LDFLAGS_COMMON} \
 			     -shared
