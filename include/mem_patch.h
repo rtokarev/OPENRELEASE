@@ -29,9 +29,16 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#if PLATFORM == SATURN6
+# define vmem_patch(vaddr, value) vmem_patch2(vaddr, value)
+#else
+# define vmem_patch(vaddr, value) vmem_patch1(vaddr,value)
+#endif
+
+
 void mmaps_init(void);
 
-void vmem_patch(void *vaddr, int value);
+void vmem_patch1(void *vaddr, int value);
 void vmem_patch2(void *vaddr, int value);
 void rmem_patch(void *raddr, int value);
 

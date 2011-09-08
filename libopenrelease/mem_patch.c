@@ -119,7 +119,7 @@ static struct map *search_map(void *vaddr)
 	return NULL;
 }
 
-void vmem_patch(void *vaddr, int value)
+void vmem_patch1(void *vaddr, int value)
 {
 	struct map *map = search_map(vaddr);
 
@@ -141,7 +141,7 @@ void vmem_patch2(void *vaddr, int value)
 
 	if (map->offset == 0) {
 		/* It's not a XIPed region. Patch it using virtual address */
-		vmem_patch(vaddr, value);
+		vmem_patch1(vaddr, value);
 
 		return;
 	}
