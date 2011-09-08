@@ -11,9 +11,7 @@ ${release}: LDFLAGS = ${LDFLAGS_COMMON} \
 		      -Wl,--start-group \
 		      	${origin_release_libs} \
 		      -Wl,--end-group \
-		      -Wl,-Bstatic \
-		      ${LIBS} \
-		      -Wl,-Bdynamic
+		      ${LIBS}
 
 ${release}: ${origin_release_libs} ${origin_release_objects}
 	${CC} ${LDFLAGS} ${origin_release_objects} -o $@
@@ -34,15 +32,15 @@ RELEASE_NEEDED_LIBS_DST = $(patsubst %,lgapp/lib/%,${RELEASE_NEEDED_LIBS})
 release_needed_libs_install:
 	${MKDIR} -p lgapp/lib
 	${CP} ${RELEASE_NEEDED_LIBS_SRC} lgapp/lib
-#	${CHMOD} +t ${RELEASE_NEEDED_LIBS_DST}
-ifndef DEBUG
+	${CHMOD} +t ${RELEASE_NEEDED_LIBS_DST}
+ifeq (${DEBUG},0)
 	${SSTRIP} ${RELEASE_NEEDED_LIBS_DST}
 endif
 
 release_linker_install:
 	${MKDIR} -p lgapp/lib
 	${CP} `${cc} -print-file-name=${linker}` lgapp/lib
-ifndef DEBUG
+ifeq (${DEBUG},0)
 	${SSTRIP} lgapp/lib/${linker}
 endif
 
@@ -54,7 +52,7 @@ release_install: ${release} ${RELEASE} ${sym}
 	${CP} ${release} lgapp/bin/RELEASE
 	${CP} ${sym} lgapp/bin/RELEASE.sym
 	${CHMOD} +t lgapp/bin/RELEASE
-ifndef DEBUG
+ifeq (${DEBUG},0)
 	${SSTRIP} lgapp/bin/RELEASE
 endif
 

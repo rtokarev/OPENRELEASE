@@ -6,7 +6,6 @@ origin_release_libs = ${RELEASE_LIB}/*.a
 origin_release_objects = ${RELEASE_LIB}/*.o
 
 VERSION = $(shell git describe)
-VERSION_BASE = $(shell git describe | sed -e 's/-.*//')
 
 CFLAGS = -mips32 \
 	 -std=c99 \
@@ -35,7 +34,7 @@ include libopenrelease/libopenrelease.mk
 include scripts/lgapp.mk
 
 libopenrelease: ${libopenrelease}
-release: sstrip lgapp.tar.gz
+release: sstrip mkcramfs lgapp.tar.gz lgapp.epk
 
 #ifeq ($(filter depend clean,${MAKECMDGOALS}),)
 # include .depend
