@@ -118,20 +118,24 @@ int __wrap_main(int argc, char *argv[], char *envp[])
 
 	create_log(log_file);
 
-	if (daemon && getppid() != 1) {
-		if (daemonize(1, 0) == -1) {
-			say_error("can't daemonize");
+	config_init(config_file);
 
-			_exit(EXIT_FAILURE);
+	if (getenv("OPENRELEASE_STAGE2") == NULL) {
+		if (daemon) {
+			if (daemonize(1, 0) == -1) {
+				say_error("can't daemonize");
+
+				_exit(EXIT_FAILURE);
+			}
 		}
+
+		if (stdio_wrap(config.input, config.output) == -1)
+			say_error("stdio_wrap failed");
+
+		putenv("OPENRELEASE_STAGE2=1");
 
 		execvp(argv[0], argv);
 	}
-
-	config_init(config_file);
-
-	if (stdio_wrap(config.input, config.output) == -1)
-		say_error("stdio_wrap failed");
 
 	mmaps_init();
 

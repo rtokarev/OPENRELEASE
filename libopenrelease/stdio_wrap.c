@@ -244,10 +244,6 @@ int stdio_wrap(const char *ifname, const char *ofname)
 
 		(void)login_tty(slave);
 
-		(void)dup2(slave, STDIN_FILENO);
-		(void)dup2(slave, STDOUT_FILENO);
-		(void)dup2(slave, STDERR_FILENO);
-
 		return 0;
 	default:
 		close(slave);
