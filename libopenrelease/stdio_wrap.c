@@ -244,6 +244,9 @@ int stdio_wrap(const char *ifname, const char *ofname)
 
 		(void)login_tty(slave);
 
+		(void)setvbuf(stdout, NULL, _IOLBF, 0);
+		(void)setvbuf(stderr, NULL, _IONBF, 0);
+
 		return 0;
 	default:
 		close(slave);
