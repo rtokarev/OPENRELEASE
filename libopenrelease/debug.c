@@ -44,7 +44,7 @@ static int debug_fd = -1;
 void debug_init(void)
 {
 	if (config.input) {
-		debug_fd = open(config.input, O_WRONLY);
+		debug_fd = open(config.input, O_RDWR);
 		if (debug_fd == -1)
 			say_error("debug_init: can't open `%s': %m", config.input);
 	}

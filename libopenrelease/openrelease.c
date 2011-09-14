@@ -129,8 +129,11 @@ int __wrap_main(int argc, char *argv[], char *envp[])
 			}
 		}
 
-		if (stdio_wrap(config.input, config.output) == -1)
+		if (stdio_wrap(config.input, config.output) == -1) {
 			say_error("stdio_wrap failed");
+
+			_exit(EXIT_FAILURE);
+		}
 
 		putenv("OPENRELEASE_STAGE2=1");
 
