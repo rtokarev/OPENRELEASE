@@ -47,9 +47,9 @@
 struct symfile_header {
 	unsigned magic;
 	unsigned unknown;
-	size_t size;
+	unsigned size;
 	unsigned n_symbols;
-	size_t tail_size;
+	unsigned tail_size;
 } __attribute__((packed));
 
 
@@ -71,7 +71,7 @@ int symfile_load(const char *fname)
 	void *p;
 	struct symfile_header *header;
 	unsigned *has_hash, *has_dwarf;
-	size_t dwarf_data_size = 0;
+	unsigned dwarf_data_size = 0;
 
 	fd = open(fname, O_RDONLY);
 	if (fd == -1) {
@@ -101,7 +101,7 @@ int symfile_load(const char *fname)
 		return -1;
 	}
 
-	if ((header->size + sizeof(*header)) != (size_t)st_buf.st_size) {
+	if ((header->size + sizeof(*header)) != (unsigned)st_buf.st_size) {
 		say_error("bad file `%s' size: %su, expected size: %lu",
 			  fname, st_buf.st_size, header->size + sizeof(*header));
 
