@@ -29,23 +29,24 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdint.h>
 #include <unistd.h>
 
 
 struct sym_entry {
-	void *addr;
-	void *end;
-	off_t sym_name_off;
+	uint32_t addr;
+	uint32_t end;
+	uint32_t sym_name_off;
 };
 
 struct sym_table {
-	unsigned n_symbols;
+	uint32_t n_symbols;
 	struct sym_entry *sym_entry;
-	unsigned *hash;
-	unsigned n_dwarf_lst;
+	uint32_t *hash;
+	uint32_t n_dwarf_lst;
 	struct {
-		unsigned d1;
-		unsigned d2;
+		uint32_t d1;
+		uint32_t d2;
 	} *dwarf_lst;
 	unsigned char *dwarf_data;
 	char *sym_name;
@@ -56,7 +57,7 @@ extern struct sym_table sym_table;
 
 
 int symfile_load(const char *sym_fname);
-void *symfile_addr_by_name(const char *name);
-const char *symfile_name_by_addr(const void *addr);
+uint32_t symfile_addr_by_name(const char *name);
+const char *symfile_name_by_addr(uint32_t addr);
 
 #endif

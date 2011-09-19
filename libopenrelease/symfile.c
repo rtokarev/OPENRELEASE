@@ -45,11 +45,11 @@
 
 
 struct symfile_header {
-	unsigned magic;
-	unsigned unknown;
-	unsigned size;
-	unsigned n_symbols;
-	unsigned tail_size;
+	uint32_t magic;
+	uint32_t unknown;
+	uint32_t size;
+	uint32_t n_symbols;
+	uint32_t tail_size;
 } __attribute__((packed));
 
 
@@ -70,8 +70,8 @@ int symfile_load(const char *fname)
 	struct stat st_buf;
 	void *p;
 	struct symfile_header *header;
-	unsigned *has_hash, *has_dwarf;
-	unsigned dwarf_data_size = 0;
+	uint32_t *has_hash, *has_dwarf;
+	uint32_t dwarf_data_size = 0;
 
 	fd = open(fname, O_RDONLY);
 	if (fd == -1) {
@@ -101,7 +101,7 @@ int symfile_load(const char *fname)
 		return -1;
 	}
 
-	if ((header->size + sizeof(*header)) != (unsigned)st_buf.st_size) {
+	if ((header->size + sizeof(*header)) != (uint32_t)st_buf.st_size) {
 		say_error("bad file `%s' size: %su, expected size: %lu",
 			  fname, st_buf.st_size, header->size + sizeof(*header));
 
@@ -140,9 +140,9 @@ int symfile_load(const char *fname)
 	}
 
 	if (*has_dwarf == 1) {
-		sym_table.n_dwarf_lst = *(unsigned *)p;
+		sym_table.n_dwarf_lst = *(uint32_t *)p;
 		p += sizeof(sym_table.n_dwarf_lst);
-		dwarf_data_size = *(unsigned *)p;
+		dwarf_data_size = *(uint32_t *)p;
 		p += sizeof(dwarf_data_size);
 		sym_table.dwarf_lst = p;
 		p += sizeof(sym_table.dwarf_lst[0]) * sym_table.n_dwarf_lst;
@@ -157,7 +157,7 @@ int symfile_load(const char *fname)
 	return 0;
 }
 
-void *symfile_addr_by_name(const char *name)
+uint32_t symfile_addr_by_name(const char *name)
 {
 	for (unsigned i = 0; i < sym_table.n_symbols; ++i) {
 		char *sym_name = sym_table.sym_name + sym_table.sym_entry[i].sym_name_off;
@@ -166,10 +166,10 @@ void *symfile_addr_by_name(const char *name)
 			return sym_table.sym_entry[i].addr;
 	}
 
-	return NULL;
+	return 0;
 }
 
-const char *symfile_name_by_addr(const void *addr)
+const char *symfile_name_by_addr(uint32_t addr)
 {
 	for (int i = sym_table.n_symbols - 1; i >= 0; --i) {
 		if (sym_table.sym_entry[i].addr <= addr && sym_table.sym_entry[i].end > addr)

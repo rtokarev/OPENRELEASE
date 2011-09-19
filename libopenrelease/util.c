@@ -37,7 +37,7 @@
 
 void *sym2addr(const char *name)
 {
-	void *addr = symfile_addr_by_name(name);
+	void *addr = (void *)symfile_addr_by_name(name);
 
 	if (addr == NULL)
 		addr = dlsym(RTLD_NEXT, name);
@@ -47,7 +47,7 @@ void *sym2addr(const char *name)
 
 const char *addr2sym(const void *addr)
 {
-	const char *name = symfile_name_by_addr(addr);
+	const char *name = symfile_name_by_addr((uint32_t)addr);
 
 	if (name == NULL) {
 		Dl_info info;

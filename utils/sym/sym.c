@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -26,7 +27,7 @@ int main(int argc, char *argv[])
 {
 	int c;
 	int all = 0;
-	void *address = NULL;
+	uint32_t address = 0;
 	char *symfile = NULL;
 	char *symbol = NULL;
 
@@ -39,8 +40,8 @@ int main(int argc, char *argv[])
 		case 'a': {
 			char *endptr = NULL;
 
-			address = (void *)strtoul(optarg, &endptr, 16);
-			if (*endptr != '\0' || address == (void *)ULONG_MAX) {
+			address = strtoul(optarg, &endptr, 16);
+			if (*endptr != '\0' || address == UINT32_MAX) {
 				say_error("bad value of address argument: %s", optarg);
 
 				usage();
@@ -92,7 +93,7 @@ int main(int argc, char *argv[])
 	if (all == 1) {
 		for (unsigned i = 0; i < sym_table.n_symbols; ++i) {
 			char *sym_name = sym_table.sym_name + sym_table.sym_entry[i].sym_name_off;
-			void *addr = sym_table.sym_entry[i].addr;
+			uint32_t addr = sym_table.sym_entry[i].addr;
 
 			printf("%s 0x%x\n", sym_name, addr);
 		}
