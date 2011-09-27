@@ -37,6 +37,7 @@
 #include <symfile.h>
 #include <version.h>
 #include <wrap.h>
+#include <uinput.h>
 
 #include <err.h>
 #include <errno.h>
@@ -147,6 +148,7 @@ int __wrap_main(int argc, char *argv[], char *envp[])
 
 	debug_init();
 	key_action_init();
+	uinput_init();
 
 	say_info("dive into RELEASE");
 

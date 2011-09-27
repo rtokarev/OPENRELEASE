@@ -36,6 +36,7 @@
 #include <parse_config.h>
 #include <util.h>
 #include <wrap.h>
+#include <uinput.h>
 
 #include <RELEASE.h>
 
@@ -186,6 +187,7 @@ void key_action_init(void)
 
 WRAP(void, _MICOM_ProcessSingleKey, __UINT8 keyCode, __UINT32 keyType __attribute__((unused)))
 {
+	uinput_send(keyCode);
 	KEY_ACTIONS_DO(KEYS, keyCode);
 }
 
