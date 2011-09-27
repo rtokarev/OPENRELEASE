@@ -38,6 +38,9 @@
 #include <wrap.h>
 #include <uinput.h>
 
+#include <SDL.h>
+#include <SDL_getenv.h>
+
 #include <RELEASE.h>
 
 #include <stdbool.h>
@@ -122,7 +125,9 @@
 	_(key_code, ##args)			\
 	_(screen_mute, ##args)			\
 	_(soft_poweroff, ##args)		\
-	_(osd_select, ##args)
+	_(osd_select, ##args)			\
+	_(sdl_test, ##args)				\
+	_(gop_gwin_info_get, ##args)
 
 
 struct key_action;
@@ -265,3 +270,168 @@ KEY_ACTION_HANDLER_BEGIN(osd_select)
 	osd_on = !osd_on;
 }
 KEY_ACTION_HANDLER_END
+
+void ShowBMP(char *file, SDL_Surface *screen, int x, int y)
+{
+    SDL_Surface *image;
+    SDL_Rect dest;
+ 
+    image = SDL_LoadBMP(file);
+    if ( image == NULL ) {
+        say_error("Couldn't load %s: %s\n", file, SDL_GetError());
+        return;
+    }
+ 
+    dest.x = x;
+    dest.y = y;
+    dest.w = image->w;
+    dest.h = image->h;
+    SDL_BlitSurface(image, NULL, screen, &dest);
+ 
+    SDL_UpdateRects(screen, 1, &dest);
+}
+
+int SDL_TestThread() 
+{
+	SDL_Surface *screen;
+	say_debug("SDL_TestThread: Initializing SDL.");
+
+	putenv("SDL_VIDEODRIVER=lgdtv");
+	
+	if((SDL_Init(SDL_INIT_VIDEO)==-1)) { 
+		say_error("SDL_TestThread: Could not initialize SDL: %s.", SDL_GetError());
+		return -1;
+	}
+
+	say_debug("SDL_TestThread: SDL initialized.");
+
+	say_debug("SDL_TestThread: pre SDL_SetVideoMode");
+	screen=SDL_SetVideoMode(1368, 768, 16, SDL_SWSURFACE ); 
+	if ( screen == NULL ){ 
+		say_error("SDL_TestThread: Unable to set 1368x768x16 video: %s", SDL_GetError()); 
+		exit(1); 
+	} 	
+	say_debug("SDL_TestThread: SDL_SetVideoMode done");
+	
+	ShowBMP ("/tmp/sample.bmp", screen, 50, 50);
+	SDL_Delay(500);
+	int x,y;
+	for(x=0;x<1368 ;x++){ 
+		for(y=0;y<768;y++){ 
+
+			Uint32 color;
+			if (y>0)
+			    color = SDL_MapRGB(screen->format, 144, 40, 60);
+			if (y>200)
+			    color = 0x48a7;
+			if (y>400)
+			    color = SDL_MapRGBA(screen->format, 144, 40, 60, 100);
+			if (y>600)
+			    color = 0xC8a7;
+			Uint16 *bufp;
+			bufp = (Uint16 *)screen->pixels + y*screen->pitch/2 + x;
+			*bufp = color;
+		}
+		SDL_UpdateRect(screen, x-1, 0, x+1, y); // fast
+	} 	
+	ShowBMP ("/tmp/sample.bmp", screen, 640, 480);
+	
+	int i = 0;
+	int loop = 1;
+	do {
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) 
+		{	
+			say_debug("SDL_TestThread: SDL_Event #%d, type: ", i++, event.type);
+			switch (event.type) 
+			{
+				case SDL_KEYDOWN:
+				case SDL_KEYUP:
+					say_debug ("SDL_TestThread: SDL_Event: sym: 0x%X, scancode: 0x%X", event.key.keysym.sym, event.key.keysym.scancode);
+					if (event.key.keysym.sym == SDLK_RETURN_EXIT) {
+						loop = 0;
+						say_debug ("SDL_TestThread: SDL_Event: SDLK_RETURN_EXIT");
+					}
+					break;
+			}
+		}
+	} while (loop);
+
+	say_debug("SDL_TestThread: Quiting SDL.");
+	SDL_Quit();
+	say_debug("SDL_TestThread: Quiting....");
+	return 1;
+}
+
+KEY_ACTION_HANDLER_BEGIN(sdl_test)
+{
+	SDL_Thread *testthread = NULL;
+	testthread = SDL_CreateThread(SDL_TestThread, NULL);
+	if (testthread == NULL) {
+		say_error("SDL_CreateThread failed");
+	}
+}
+KEY_ACTION_HANDLER_END
+
+KEY_ACTION_HANDLER_BEGIN(gop_gwin_info_get)
+{
+	GOP_HW_Type eGOP_Type = E_GOP4G_0;
+	unsigned char u8Wid;
+	GopGwinInfo pGInfo[10];
+	int pitch;
+
+
+	for (u8Wid=0; u8Wid<10; u8Wid++ ){
+		pitch = 0 ;
+		//	short unsigned int MAdp_GOP_GWIN_Info_Get(GOP_HW_Type eGOP_Type, unsigned char u8Wid, GopGwinInfo * pGInfo)
+		CALL (short unsigned int, MAdp_GOP_GWIN_Info_Get, GOP_HW_Type, unsigned char, GopGwinInfo *)(eGOP_Type, u8Wid, &pGInfo[u8Wid]);
+
+		say_debug ("\nGOP[%d] info-----------------------------------", u8Wid);
+		say_debug ("pGInfo.bUsed=%d", pGInfo[u8Wid].bUsed);
+		say_debug ("pGInfo.u32DispHStart=%d", pGInfo[u8Wid].u32DispHStart) ;
+		say_debug ("pGInfo.u32DispVStart=%d", pGInfo[u8Wid].u32DispVStart);
+		say_debug ("pGInfo.u32DispWidth=%d", pGInfo[u8Wid].u32DispWidth);
+		say_debug ("pGInfo.u32DispHeight=%d", pGInfo[u8Wid].u32DispHeight);
+		say_debug ("pGInfo.u32DRAMRBlkStart=0x%08X", pGInfo[u8Wid].u32DRAMRBlkStart);
+		say_debug ("pGInfo.u32DRAMRBlkHSize=%d", pGInfo[u8Wid].u32DRAMRBlkHSize);
+		say_debug ("pGInfo.u32DRAMRBlkVSize=%d", pGInfo[u8Wid].u32DRAMRBlkVSize);
+		say_debug ("pGInfo.u32SrcHStart=%d", pGInfo[u8Wid].u32SrcHStart);
+		say_debug ("pGInfo.u32SrcVStart=%d", pGInfo[u8Wid].u32SrcVStart);
+		say_debug ("pGInfo.u32ColorDepth=%d", pGInfo[u8Wid].u32ColorDepth);
+		
+		say_debug ("pGInfo.eColorTyped=");
+		switch(pGInfo[u8Wid].eColorType){
+		case E_GOP_COLOR_RGB555_BLINK:
+			say_debug ("E_GOP_COLOR_RGB555_BLINK = E_GOP_COLOR_ARGB1555");
+			break ;
+		case E_GOP_COLOR_RGB565:
+			say_debug ("E_GOP_COLOR_RGB565");
+			break ;
+		case E_GOP_COLOR_ARGB1555:
+			say_debug ("E_GOP_COLOR_ARGB1555");
+			break ;
+		case E_GOP_COLOR_ARGB4444:
+			say_debug ("E_GOP_COLOR_ARGB4444");
+			pitch = (((((pGInfo[u8Wid].u32DRAMRBlkHSize) << 1)+15)>>4)<<4) ;
+			break ;
+		case E_GOP_COLOR_I8:
+			say_debug ("E_GOP_COLOR_I8");
+			pitch = pGInfo[u8Wid].u32DRAMRBlkHSize ;
+			break ;
+		case E_GOP_COLOR_ARGB8888:
+			say_debug ("E_GOP_COLOR_ARGB8888");
+			pitch = (((((pGInfo[u8Wid].u32DRAMRBlkHSize) << 2)+15)>>4)<<4) ;
+			break ;
+		default:
+			say_debug( "unknown %d", pGInfo[u8Wid].eColorType);
+			break ;
+		}
+		
+		say_debug("pGInfo.pitch=%d", pitch);
+		say_debug("pGInfo.mem size=0x%08X", (pitch*(pGInfo[u8Wid].u32DRAMRBlkVSize)));
+		say_debug("pGInfo.u32Enable=%d", pGInfo[u8Wid].u32Enable);		
+	}
+
+}
+KEY_ACTION_HANDLER_END
+
