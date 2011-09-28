@@ -19,10 +19,40 @@
     Sam Lantinga
     slouken@libsdl.org
 */
+#include "SDL_config.h"
 
-#ifndef _SDL_config_h
-#define _SDL_config_h
+#ifndef _SDL_LGDTV_video_h
+#define _SDL_LGDTV_video_h
 
-#include "SDL_config_lgdtv.h"
+#include "../SDL_sysvideo.h"
 
-#endif /* _SDL_config_h */
+#define LGDTV_INPUT_DEVICE  "/dev/input/event"
+
+#define LGDTV_MAX_INPUTS    32
+
+#define LGDTV_WIDTH			1368
+#define LGDTV_HEIGHT		768
+#define LGDTV_BPP			16
+#define LGDTV_AMASK			0x8000		// 1000 0000 0000 0000
+#define LGDTV_RMASK			0x7C00		// 0111 1100 0000 0000
+#define LGDTV_GMASK			0x03E0		// 0000 0011 1110 0000
+#define LGDTV_BMASK			0x001F		// 0000 0000 0001 1111
+
+
+/* Hidden "this" pointer for the video functions */
+#define _THIS	SDL_VideoDevice *this
+
+
+/* Private display data */
+
+struct SDL_PrivateVideoData {
+    int w, h;
+    int bpp;
+    void *buffer;
+    int input_fd[LGDTV_MAX_INPUTS];    
+};
+
+/* Old variable names */
+#define input_fd            (this->hidden->input_fd)
+
+#endif /* _SDL_nullvideo_h */

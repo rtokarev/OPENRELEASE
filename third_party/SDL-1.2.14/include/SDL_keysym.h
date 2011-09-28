@@ -296,6 +296,51 @@ typedef enum {
 	SDLK_UNDO		= 322,		/**< Atari keyboard has Undo */
         /*@}*/
 
+	/** @name LGDTV remote keys*/
+        /*@{*/
+
+	SDLK_ENERGY_SAVING	= 323,
+	SDLK_INPUT			= 324,
+	SDLK_RATIO			= 325,
+	SDLK_TV_RAD			= 326,
+	SDLK_Q_MENU			= 327,
+	SDLK_GUIDE			= 328,
+	SDLK_OK				= 329,
+	SDLK_INFO			= 330,
+	SDLK_AV_MODE		= 331,
+	SDLK_VOL_UP			= 332,
+	SDLK_VOL_DOWN		= 333,
+	SDLK_FAV_MARK		= 334,
+	SDLK_MUTE			= 335,
+	SDLK_LIST			= 336,
+	SDLK_Q_VIEW			= 337,
+	SDLK_RED_KEY		= 338,
+	SDLK_GREEN_KEY		= 339,
+	SDLK_YELLOW_KEY		= 340,
+	SDLK_BLUE_KEY		= 341,
+	SDLK_TEXT			= 342,
+	SDLK_T_OPT			= 343,
+	SDLK_SUBTITLE		= 344,
+	SDLK_SIMPLINK		= 345,
+	SDLK_FREEZE			= 346,
+	SDLK_NETCAST		= 347,
+	SDLK_EXIT			= 348,
+	SDLK_STOP			= 349,
+	SDLK_PLAY			= 350,
+	SDLK_RETURN_EXIT	= 351,
+	SDLK_FORWARD		= 352,
+	SDLK_BACKWARD		= 353,
+	SDLK_AD				= 354,
+	SDLK_TILT			= 355,
+	SDLK_IN_STOP		= 356,
+	SDLK_IN_START		= 357,
+	SDLK_P_CHECK		= 358,
+	SDLK_S_CHECK		= 359,
+	SDLK_POWERONLY		= 360,
+	SDLK_EZ_ADJUST		= 361,
+
+        /*@}*/
+
 	/* Add any other keys here */
 
 	SDLK_LAST

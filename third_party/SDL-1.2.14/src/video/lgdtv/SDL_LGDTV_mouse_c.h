@@ -19,10 +19,8 @@
     Sam Lantinga
     slouken@libsdl.org
 */
+#include "SDL_config.h"
 
-#ifndef _SDL_config_h
-#define _SDL_config_h
+#include "SDL_LGDTV_video.h"
 
-#include "SDL_config_lgdtv.h"
-
-#endif /* _SDL_config_h */
+/* Functions to be exported */

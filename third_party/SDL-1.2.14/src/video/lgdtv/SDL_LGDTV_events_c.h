@@ -19,10 +19,15 @@
     Sam Lantinga
     slouken@libsdl.org
 */
+#include "SDL_config.h"
 
-#ifndef _SDL_config_h
-#define _SDL_config_h
+#include "SDL_LGDTV_video.h"
 
-#include "SDL_config_lgdtv.h"
+/* Variables and functions exported by SDL_sysevents.c to other parts 
+   of the native video subsystem (SDL_sysvideo.c)
+*/
+extern void LGDTV_InitOSKeymap(_THIS);
+extern void LGDTV_PumpEvents(_THIS);
 
-#endif /* _SDL_config_h */
+/* end of SDL_nullevents_c.h ... */
+
