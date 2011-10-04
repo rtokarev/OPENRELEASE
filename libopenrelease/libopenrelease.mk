@@ -1,3 +1,5 @@
+CFLAGS += -I${SDL_LIB}/include
+
 libopenrelease = libopenrelease/libopenrelease.so
 
 libopenrelease_sources = libopenrelease/config.c \
@@ -18,10 +20,11 @@ libopenrelease_sources = libopenrelease/config.c \
 
 libopenrelease_objects = $(patsubst %.c,%.o,${libopenrelease_sources})
 
-${libopenrelease}: LIBS = -ldl -lutil
+${libopenrelease}: LIBS = -ldl -lutil -lSDL
 
 ${libopenrelease}: LDFLAGS = ${LDFLAGS_COMMON} \
-			     -shared
+			     -shared	\
+			    -L${SDL_LIB}
 
 ${libopenrelease}: ${libopenrelease_objects}
 	${CC} ${LDFLAGS} ${libopenrelease_objects} -o $@ ${LIBS}
