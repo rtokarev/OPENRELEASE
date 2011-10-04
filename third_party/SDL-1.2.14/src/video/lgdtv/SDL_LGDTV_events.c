@@ -104,17 +104,22 @@ void LGDTV_OpenInputDevices(_THIS)
 
 void LGDTV_CloseInputDevices(_THIS)
 {
+	printf("SDL: LGDTV_CloseInputDevices begin\n");
 	int i;
 
 	for ( i = 0; i < LGDTV_MAX_INPUTS; i++ ) {
+		printf("SDL: LGDTV_CloseInputDevices: input_fd[%d]=%d\n", i, input_fd[i]);
 		if ( input_fd[i] >= 0 ) {
+			printf("SDL: LGDTV_CloseInputDevices: ioctl\n");
 			ioctl(input_fd[i], EVIOCGRAB, 0);
+			printf("SDL: LGDTV_CloseInputDevices: close\n");
+			
 			close(input_fd[i]);
 			input_fd[i] = -1;
 		}
 	}
+	printf("SDL: LGDTV_CloseInputDevices end\n");
 }
-
 
 void LGDTV_InitOSKeymap(_THIS)
 {

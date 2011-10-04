@@ -23,12 +23,10 @@
 
 /* 
   Written by Eugene Vorobev <jenya.vv@gmail.com>
-  openlgtv OSD video driver implementation.
-  1368x768 resolution.
+  LGDTV OSD video driver implementation.
+  1368x768x16 resolution.
   Hardware acceleration not implemented yet.
 */
-
-// TODO: implement hardware acceleration (ge mstar device)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,7 +62,7 @@
 // 1368x768x2
 #define FB_MMAP_SIZE 0x201000UL
 
-static int *VFB;
+static void *VFB;
 unsigned int fb_addr = FB_ADDR;
 int fd;
 
@@ -151,7 +149,7 @@ static SDL_VideoDevice *LGDTV_CreateDevice(int devindex)
 	device->SetVideoMode = LGDTV_SetVideoMode;
 	device->CreateYUVOverlay = NULL;
 	device->SetColors = LGDTV_SetColors;
-	device->UpdateRects = NULL;
+	device->UpdateRects = LGDTV_UpdateRects;
 	device->VideoQuit = LGDTV_VideoQuit;
 //	device->AllocHWSurface = LGDTV_AllocHWSurface;
 	device->AllocHWSurface = NULL;
@@ -216,34 +214,66 @@ int LGDTV_VideoInit(_THIS, SDL_PixelFormat *vformat)
 
 SDL_Rect **LGDTV_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags)
 {
-   	 return (SDL_Rect **) -1;
+	static const SDL_Rect modes[] = {
+		{  0, 0, LGDTV_WIDTH, LGDTV_HEIGHT },
+	};
+	static const SDL_Rect *modelist[] = {
+		&modes[0],
+		NULL
+	};
+
+	switch (format->BitsPerPixel) {
+		case LGDTV_BPP:
+			return((SDL_Rect **)modelist);
+		default:
+			return(NULL);
+	}
+
+}
+
+void print_GFXOSD_VOSD_INFO_T(GFXOSD_VOSD_INFO_T * info)
+{
+	printf("GFXOSD_VOSD_INFO_T.bEnable: %d\n", info->bEnable);
+	printf("GFXOSD_VOSD_INFO_T.osdId: %d\n", info->osdId);
+	printf("GFXOSD_VOSD_INFO_T.viewX: %d\n", info->viewX);
+	printf("GFXOSD_VOSD_INFO_T.viewY: %d\n", info->viewY);
+	printf("GFXOSD_VOSD_INFO_T.viewWidth: %d\n", info->viewWidth);
+	printf("GFXOSD_VOSD_INFO_T.viewHeight: %d\n", info->viewWidth);
+	printf("GFXOSD_VOSD_INFO_T.dispX: %d\n", info->dispX);
+	printf("GFXOSD_VOSD_INFO_T.dispY: %d\n", info->dispY);
+	printf("GFXOSD_VOSD_INFO_T.dispWidth: %d\n", info->dispWidth);
+	printf("GFXOSD_VOSD_INFO_T.dispHeight: %d\n", info->dispHeight);
+	printf("GFXOSD_VOSD_INFO_T.format: %d\n", info->format);
+	printf("GFXOSD_VOSD_INFO_T.pxlDepth: %d\n", info->pxlDepth);
+	printf("GFXOSD_VOSD_INFO_T.width: %d\n", info->width);
+	printf("GFXOSD_VOSD_INFO_T.height: %d\n", info->height);
+	printf("GFXOSD_VOSD_INFO_T.stride: %d\n", info->stride);
+	printf("GFXOSD_VOSD_INFO_T.alphaValue: %d\n", info->alphaValue);
+	printf("GFXOSD_VOSD_INFO_T.pAddr: 0x%x\n", info->pAddr);
 }
 
 SDL_Surface *LGDTV_SetVideoMode(_THIS, SDL_Surface *current,
 				int width, int height, int bpp, Uint32 flags)
 {
-	GOP_HW_Type eGOP_Type = E_GOP4G_0;
-	unsigned char u8Wid=3;
-	GopGwinInfo pGInfo;
-
-	if (width > LGDTV_WIDTH || height > LGDTV_HEIGHT) {
-		SDL_SetError("Resolution bigger then 1368x768 not supported");
+	printf("LGDTV_SetVideoMode: begin\n");
+	if (width != LGDTV_WIDTH || height != LGDTV_HEIGHT || LGDTV_BPP != 16) {
+		printf("LGDTV_SetVideoMode: Only 1366x768x16 mode supported\n");
+		SDL_SetError("Only 1366x768x16 mode supported");
 		return(NULL);
 	}
 	
-	CALL (short unsigned int, MAdp_GOP_GWIN_Info_Get, GOP_HW_Type, unsigned char, GopGwinInfo *)(eGOP_Type, u8Wid, &pGInfo);
-	printf ("LGDTV_SetVideoMode: pGInfo.u32DispWidth=%d\n", pGInfo.u32DispWidth);
-	printf ("LGDTV_SetVideoMode: pGInfo.u32DispHeight=%d\n", pGInfo.u32DispHeight);
-	printf ("LGDTV_SetVideoMode: pGInfo.u32DRAMRBlkStart=0x%08X\n", pGInfo.u32DRAMRBlkStart);	
-	printf ("pGInfo.u32ColorDepth=%\nd", pGInfo.u32ColorDepth);
+	GFXOSD_VOSD_INFO_T GfxVOsdInfo;
+	GFXOSD_DEF_T _gGFXOSDDef;
 
-	fb_addr = pGInfo.u32DRAMRBlkStart;
-//	fb_addr = FB_ADDR;
-	printf("LGDTV_SetVideoMode: fb_addr = FB_ADDR = 0x%08X\n", fb_addr);
-	printf("LGDTV_SetVideoMode: pre open\n");
-	fd = open("/dev/mem", O_RDWR | O_SYNC);
-	printf("LGDTV_SetVideoMode: open\n");
-	VFB=mmap(0, FB_MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, fb_addr);
+	this->hidden->vosdId = GFXOSD_VOSD_0;
+
+	printf("LGDTV_SetVideoMode: DDI_GFXOSD_GetVirtualOSDInfo[GFXOSD_VOSD_0]:\n");
+
+//	DTV_STATUS_T DDI_GFXOSD_GetVirtualOSDInfo(GFXOSD_VOSD_ID_T vosdId, GFXOSD_VOSD_INFO_T * pGfxVosdInfo)
+	CALL (DTV_STATUS_T, DDI_GFXOSD_GetVirtualOSDInfo, GFXOSD_VOSD_ID_T, GFXOSD_VOSD_INFO_T *)(this->hidden->vosdId, &GfxVOsdInfo);
+	print_GFXOSD_VOSD_INFO_T(&GfxVOsdInfo);
+
+	VFB = GfxVOsdInfo.pAddr;
 	
 	printf("LGDTV_SetVideoMode: pre set buffer\n");
 	this->hidden->buffer = VFB;
@@ -256,7 +286,7 @@ SDL_Surface *LGDTV_SetVideoMode(_THIS, SDL_Surface *current,
 	SDL_memset(this->hidden->buffer, 0, LGDTV_WIDTH * LGDTV_HEIGHT * (LGDTV_BPP / 8));
 
 	printf("LGDTV_SetVideoMode: /* Allocate the new pixel format for the screen */\n");
-	// TODO: fix pixel format mask
+
 	if ( ! SDL_ReallocFormat(current, LGDTV_BPP, LGDTV_RMASK, LGDTV_GMASK, LGDTV_BMASK, LGDTV_AMASK) ) {
 		this->hidden->buffer = NULL;
 		SDL_SetError("Couldn't allocate new pixel format for requested mode");
@@ -290,21 +320,35 @@ static void LGDTV_FreeHWSurface(_THIS, SDL_Surface *surface)
 /* We need to wait for vertical retrace on page flipped displays */
 static int LGDTV_LockHWSurface(_THIS, SDL_Surface *surface)
 {
-//	unsigned int MAdp_GE_BeginDraw(void)
-	CALL (unsigned int,  MAdp_GE_BeginDraw, void);
+//	void DDI_GFXOSD_Lock(void)
+	printf("SDL: DDI_GFXOSD_Lock begin\n");
+	CALL (void, DDI_GFXOSD_Lock, void)();
+	printf("SDL: DDI_GFXOSD_Lock end\n");
 	return(0);
 }
 
 static void LGDTV_UnlockHWSurface(_THIS, SDL_Surface *surface)
 {
-//	unsigned int MAdp_GE_EndDraw(void)
-	CALL (unsigned int,  MAdp_GE_EndDraw, void);
+//	void DDI_GFXOSD_UnLock(void)
+	printf("SDL: DDI_GFXOSD_UnLock begin\n");
+	CALL (void, DDI_GFXOSD_UnLock, void)();
+	printf("SDL: DDI_GFXOSD_UnLock end\n");
 	return;
 }
 
 static void LGDTV_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
-//	UpdateSurface((char *)this->hidden->buffer, this->hidden->w, this->hidden->h);
+	DTV_STATUS_T ret;
+	__BOOLEAN bImmediate = 1;
+    int i;
+	for (i = 0; i < numrects; i++) {
+//	DTV_STATUS_T DDI_GFXOSD_UpdateScreen(GFXOSD_VOSD_ID_T vosdId, __UINT32 x, __UINT32 y, __UINT32 width, __UINT32 height, __BOOLEAN bImmediate)
+//		printf ("SDL DRIVER: LGDTV_UpdateRects begin (x: %d, y: %d, h: %d, w: %d, i: %d)\n", rects[i].x, rects[i].y, rects[i].w, rects[i].h, bImmediate);
+		CALL (DTV_STATUS_T, DDI_GFXOSD_UpdateScreen, GFXOSD_VOSD_ID_T, __UINT32, __UINT32, __UINT32, __UINT32, __BOOLEAN)(this->hidden->vosdId, rects[i].x, rects[i].y, rects[i].w, rects[i].h, bImmediate);
+//		printf ("SDL DRIVER: LGDTV_UpdateRects end\n");
+		if (ret != API_OK)
+				printf ("SDL DRIVER: LGDTV_UpdateRects: DDI_GFXOSD_UpdateScreen error: %d (x: %d, y: %d, h: %d, w: %d, i: %d)\n)", ret, rects[i].x, rects[i].y, rects[i].w, rects[i].h, bImmediate);
+	}
 }
 
 int LGDTV_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
@@ -323,12 +367,12 @@ void LGDTV_VideoQuit(_THIS)
 {
 	SDL_memset(this->hidden->buffer, 0, this->hidden->w * this->hidden->h * (this->hidden->bpp / 8));
     
-	munmap(VFB, FB_MMAP_SIZE);
+	//munmap(VFB, FB_MMAP_SIZE);
     close(fd);	
 	
 	this->screen->pixels = NULL;
 	this->hidden->buffer = NULL;
-	LGDTV_CloseInputDevices();
+	//LGDTV_CloseInputDevices();
 }
 
 int LGDTV_HWFillRect(_THIS, SDL_Surface *dst, SDL_Rect *rect, Uint32 color)

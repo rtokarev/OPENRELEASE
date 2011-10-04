@@ -20,6 +20,7 @@
     slouken@libsdl.org
 */
 #include "SDL_config.h"
+#include "RELEASE.h"
 
 #ifndef _SDL_LGDTV_video_h
 #define _SDL_LGDTV_video_h
@@ -49,7 +50,8 @@ struct SDL_PrivateVideoData {
     int w, h;
     int bpp;
     void *buffer;
-    int input_fd[LGDTV_MAX_INPUTS];    
+    int input_fd[LGDTV_MAX_INPUTS];
+    GFXOSD_VOSD_ID_T vosdId;
 };
 
 /* Old variable names */

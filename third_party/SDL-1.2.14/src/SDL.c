@@ -22,6 +22,7 @@
 #include "SDL_config.h"
 
 /* Initialization code for SDL */
+#define DEBUG_BUILD
 
 #include "SDL.h"
 #include "SDL_fatal.h"

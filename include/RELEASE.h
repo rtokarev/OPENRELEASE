@@ -135,4 +135,122 @@ typedef struct
     U32 u32Enable;
 } GopGwinInfo;
 
+
+/* gfxosd_ddi.h */
+
+typedef enum {
+    GFXOSD_VOSD_0 = 0,
+    GFXOSD_VOSD_1 = 1,
+    GFXOSD_VOSD_2 = 2,
+    GFXOSD_VOSD_3 = 3,
+    GFXOSD_NUM_OF_VOSD = 4,
+} GFXOSD_VOSD_ID_T;
+
+typedef enum {
+    GFXOSD_0 = 0,
+    GFXOSD_1 = 1,
+    GFXOSD_2 = 2,
+} GFXOSD_ID_T;
+
+typedef enum {
+    GFXOSD_ARGB8888 = 0,
+    GFXOSD_ARGB4444 = 1,
+    GFXOSD_ARGB1555 = 2,
+    GFXOSD_8BPP_PAL = 3,
+} GFXOSD_FORMAT_T;
+
+typedef enum {
+    GFXOSD_8BPP = 0,
+    GFXOSD_16BPP = 1,
+    GFXOSD_32BPP = 2,
+} GFXOSD_PIXELDEPTH_T;
+
+typedef struct {
+    __BOOLEAN                  bEnable;
+    GFXOSD_ID_T                osdId;
+    __UINT16                   viewX;
+    __UINT16                   viewY;
+    __UINT16                   viewWidth;
+    __UINT16                   viewHeight;
+    __UINT16                   dispX;
+    __UINT16                   dispY;
+    __UINT16                   dispWidth;
+    __UINT16                   dispHeight;
+    GFXOSD_FORMAT_T            format;
+    GFXOSD_PIXELDEPTH_T        pxlDepth;
+    __UINT16                   width;
+    __UINT16                   height;
+    __UINT16                   stride;
+    __UINT8                    alphaValue;
+    void *                     pAddr;
+} GFXOSD_VOSD_INFO_T;
+
+typedef enum {
+    GE_FMT_I1 = 0,
+    GE_FMT_I2 = 1,
+    GE_FMT_I4 = 2,
+    GE_FMT_I8 = 4,
+    GE_FMT_1ABFGBG12355 = 7,
+    GE_FMT_RGB565 = 8,
+    GE_FMT_ARGB1555 = 9,
+    GE_FMT_ARGB4444 = 10,
+    GE_FMT_YUV422 = 14,
+    GE_FMT_ARGB8888 = 15,
+} GE_Buffer_Format;
+
+typedef struct {
+    unsigned int               u32Addr;
+    unsigned int               u32Width;
+    unsigned int               u32Height;
+    unsigned int               u32Pitch;
+    GE_Buffer_Format           u32ColorFmt;
+} GE_BUFFER_INFO;
+
+typedef struct 
+{
+    GFXOSD_VOSD_ID_T           vosdId;
+    GFXOSD_VOSD_INFO_T         info;
+    int                        bChanged;
+    int                        dispX;
+    int                        dispY;
+    int                        dispWidth;
+    int                        dispHeight;
+    int                        bPaletteChanged;
+    unsigned int               palette[256];
+    void *                     pAddr;
+    GE_BUFFER_INFO             bufInfo;
+} GFXOSD_VOSDDEF_T;
+
+
+typedef struct {
+    long unsigned int          bEnable:1;
+    long unsigned int          bUpdate:1;
+    long unsigned int          bUseDoubleBuffer:1;
+    long unsigned int          doubleBufferIndex:1;
+    GFXOSD_FORMAT_T            format;
+    GFXOSD_PIXELDEPTH_T        pxlDepth;
+    __UINT16                   width;
+    __UINT16                   height;
+    int                        numOfVOSDs;
+    GFXOSD_VOSDDEF_T *         pVOSDDef;
+    __UINT32                   wid;
+    GOP_HW_Type                gopType;
+    int                        stride;
+    void *                     pBuffer;
+    GE_BUFFER_INFO *           pFrontBufInfo;
+    GE_BUFFER_INFO *           pBackBufInfo;
+    GE_BUFFER_INFO             bufferInfo[2];
+    int                        stretchX;
+    int                        stretchY;
+    __UINT16                   viewX;
+    __UINT16                   viewY;
+    __UINT16                   viewWidth;
+    __UINT16                   viewHeight;
+    __UINT16                   dispX;
+    __UINT16                   dispY;
+    __UINT16                   dispWidth;
+    __UINT16                   dispHeight;
+    __UINT8                    alphaValue;
+} GFXOSD_DEF_T;
+
 #endif
