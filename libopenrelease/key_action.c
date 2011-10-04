@@ -121,7 +121,8 @@
 	_(key_code, ##args)			\
 	_(screen_mute, ##args)			\
 	_(soft_poweroff, ##args)		\
-	_(osd_select, ##args)
+	_(osd_select, ##args)			\
+	_(gfxosd_info, ##args)
 
 
 struct key_action;
@@ -261,5 +262,138 @@ KEY_ACTION_HANDLER_BEGIN(osd_select)
 		return;
 
 	osd_on = !osd_on;
+}
+KEY_ACTION_HANDLER_END
+
+void print_GE_BUFFER_INFO(GE_BUFFER_INFO * bufInfo) 
+{
+	say_debug("GE_BUFFER_INFO.u32Addr: 0x%x", bufInfo->u32Addr);
+	say_debug("GE_BUFFER_INFO.u32Width: %d", bufInfo->u32Width);
+	say_debug("GE_BUFFER_INFO.u32Height: %d", bufInfo->u32Height );
+	say_debug("GE_BUFFER_INFO.u32Pitch: %d", bufInfo->u32Pitch);
+    say_debug("GE_BUFFER_INFO.u32ColorFmt: %d", bufInfo->u32ColorFmt);
+}
+
+void print_GFXOSD_VOSD_INFO_T(GFXOSD_VOSD_INFO_T * info)
+{
+	say_debug("GFXOSD_VOSD_INFO_T.bEnable: %d", info->bEnable);
+	say_debug("GFXOSD_VOSD_INFO_T.osdId; %d", info->osdId);
+	say_debug("GFXOSD_VOSD_INFO_T.viewX: %d", info->viewX);
+	say_debug("GFXOSD_VOSD_INFO_T.viewY: %d", info->viewY);
+	say_debug("GFXOSD_VOSD_INFO_T.viewWidth: %d", info->viewWidth);
+	say_debug("GFXOSD_VOSD_INFO_T.viewHeight: %d", info->viewWidth);
+	say_debug("GFXOSD_VOSD_INFO_T.dispX: %d", info->dispX);
+	say_debug("GFXOSD_VOSD_INFO_T.dispY: %d", info->dispY);
+	say_debug("GFXOSD_VOSD_INFO_T.dispWidth: %d", info->dispWidth);
+	say_debug("GFXOSD_VOSD_INFO_T.dispHeight: %d", info->dispHeight);
+	say_debug("GFXOSD_VOSD_INFO_T.format: %d", info->format);
+	say_debug("GFXOSD_VOSD_INFO_T.pxlDepth: %d", info->pxlDepth);
+	say_debug("GFXOSD_VOSD_INFO_T.width: %d", info->width);
+	say_debug("GFXOSD_VOSD_INFO_T.height: %d", info->height);
+	say_debug("GFXOSD_VOSD_INFO_T.stride: %d", info->stride);
+	say_debug("GFXOSD_VOSD_INFO_T.alphaValue: %d", info->alphaValue);
+	say_debug("GFXOSD_VOSD_INFO_T.pAddr: 0x%x", info->pAddr);
+}
+
+void print_GFXOSD_VOSDDEF_T (GFXOSD_VOSDDEF_T * VOSDDef)
+{
+		say_debug("GFXOSD_VOSDDEF_T.vosdId: %d", VOSDDef->vosdId);
+		say_debug("GFXOSD_VOSDDEF_T.info:");
+		print_GFXOSD_VOSD_INFO_T(&VOSDDef->info);
+		say_debug("GFXOSD_VOSDDEF_T.bChanged: %d", VOSDDef->bChanged);
+		say_debug("GFXOSD_VOSDDEF_T.dispX: %d", VOSDDef->dispX);
+		say_debug("GFXOSD_VOSDDEF_T.dispY: %d", VOSDDef->dispY);
+		say_debug("GFXOSD_VOSDDEF_T.dispWidth: %d", VOSDDef->dispWidth);
+		say_debug("GFXOSD_VOSDDEF_T.dispHeight: %d", VOSDDef->dispHeight);
+		say_debug("GFXOSD_VOSDDEF_T.bPaletteChanged: %d", VOSDDef->bPaletteChanged);
+		say_debug("GFXOSD_VOSDDEF_T.pAddr: 0x%x", VOSDDef->pAddr);
+		print_GE_BUFFER_INFO(&VOSDDef->bufInfo);
+}
+
+KEY_ACTION_HANDLER_BEGIN(gfxosd_info)
+{
+	say_debug("gfxosd_info");
+
+	GFXOSD_VOSDDEF_T * _gGFXOSDVOSDDef; // [4]
+	_gGFXOSDVOSDDef = (GFXOSD_VOSDDEF_T*)sym2addr("_gGFXOSDVOSDDef");
+
+	GFXOSD_DEF_T * _gGFXOSDDef; //[2]
+	_gGFXOSDDef = (GFXOSD_DEF_T*)sym2addr("_gGFXOSDDef");
+
+	GE_BUFFER_INFO gbi;	
+	
+	int i;
+	for (i=0; i<GFXOSD_NUM_OF_VOSD; i++)
+	{
+		say_debug("_gGFXOSDVOSDDef[%d]", i);
+		print_GFXOSD_VOSDDEF_T (&_gGFXOSDVOSDDef[i]);
+	}
+
+	for (i=0; i<2; i++)
+	{
+		say_debug("_gGFXOSDDef[%d]", i);
+		say_debug("bEnable:1: %d", _gGFXOSDDef[i].bEnable);
+		say_debug("bUpdate:1: %d", _gGFXOSDDef[i].bUpdate);
+		say_debug("bUseDoubleBuffer:1: %d", _gGFXOSDDef[i].bUseDoubleBuffer);
+		say_debug("doubleBufferIndex:1: %d", _gGFXOSDDef[i].doubleBufferIndex);
+		say_debug("format: %d", _gGFXOSDDef[i].format); 
+		say_debug("pxlDepth: %d", _gGFXOSDDef[i].pxlDepth);
+		say_debug("width: %d", _gGFXOSDDef[i].width);
+		say_debug("height: %d", _gGFXOSDDef[i].height);
+		say_debug("numOfVOSDs: %d", _gGFXOSDDef[i].numOfVOSDs);
+		say_debug("pVOSDDef:");
+		print_GFXOSD_VOSDDEF_T (_gGFXOSDDef[i].pVOSDDef);
+		say_debug("pVOSDDef: 0x%x",_gGFXOSDDef[i].pVOSDDef);
+		say_debug("wid: %d", _gGFXOSDDef[i].wid);
+		say_debug("gopType; %d", _gGFXOSDDef[i].gopType);
+		say_debug("stride: %d", _gGFXOSDDef[i].stride);
+		say_debug("pBuffer: 0x%x", _gGFXOSDDef[i].pBuffer);
+		say_debug("pFrontBufInfo:");
+		print_GE_BUFFER_INFO(_gGFXOSDDef[i].pFrontBufInfo);
+		say_debug("pBackBufInfo:");
+		print_GE_BUFFER_INFO(_gGFXOSDDef[i].pBackBufInfo);
+		say_debug("bufferInfo[0]:");
+		gbi = _gGFXOSDDef[i].bufferInfo[0];
+		print_GE_BUFFER_INFO(&gbi);
+		say_debug("bufferInfo[1]:");
+		gbi = _gGFXOSDDef[i].bufferInfo[1];
+		print_GE_BUFFER_INFO(&gbi);
+
+		say_debug("stretchX: %d", _gGFXOSDDef[i].stretchX);
+		say_debug("stretchY: %d", _gGFXOSDDef[i].stretchY);
+		say_debug("viewX: %d", _gGFXOSDDef[i].viewX);
+		say_debug("viewY: %d", _gGFXOSDDef[i].viewY);
+		say_debug("viewWidth: %d", _gGFXOSDDef[i].viewWidth);
+		say_debug("viewHeight: %d", _gGFXOSDDef[i].viewHeight);
+		say_debug("dispX: %d", _gGFXOSDDef[i].dispX);
+		say_debug("dispY: %d", _gGFXOSDDef[i].dispY);
+		say_debug("dispWidth: %d", _gGFXOSDDef[i].dispWidth);
+		say_debug("dispHeight: %d", _gGFXOSDDef[i].dispHeight);
+		say_debug("alphaValue: %d", _gGFXOSDDef[i].alphaValue);
+	}
+
+	GFXOSD_VOSD_ID_T vosdId = 0;
+	__UINT32 x, y, width, height; 
+	__BOOLEAN bImmediate = true;
+	__UINT32 color;
+//	int i;
+
+	x = 1;
+	y = 99;
+	width = 1000;
+	height = 2;
+
+//	DTV_STATUS_T DDI_GFXOSD_WritePixel(GFXOSD_VOSD_ID_T vosdId, __UINT32 x, __UINT32 y, __UINT32 color)	
+	color = 0x001F;
+	for (i=1; i<1000; i++) {
+		CALL (DTV_STATUS_T, DDI_GFXOSD_WritePixel, GFXOSD_VOSD_ID_T, __UINT32, __UINT32, __UINT32)(vosdId, i, y, color);
+	}
+
+
+//	DTV_STATUS_T DDI_GFXOSD_UpdateScreen(GFXOSD_VOSD_ID_T vosdId, __UINT32 x, __UINT32 y, __UINT32 width, __UINT32 height, __BOOLEAN bImmediate) 
+
+	CALL (DTV_STATUS_T, DDI_GFXOSD_UpdateScreen, GFXOSD_VOSD_ID_T, __UINT32, __UINT32, __UINT32, __UINT32, __BOOLEAN)(vosdId, x, y, width, height, bImmediate);
+
+
 }
 KEY_ACTION_HANDLER_END
