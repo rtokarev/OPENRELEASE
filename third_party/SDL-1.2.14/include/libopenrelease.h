@@ -26,13 +26,10 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef _LIBOPENRELEASE_H_
+#define _LIBOPENRELEASE_H_
 
-#define CONCAT_(x, y) x ## y
-#define CONCAT(x, y) CONCAT_(x, y)
-#define UNIQUE(x) CONCAT(x, __LINE__)
+#include "../../../include/util.h"
+#include "../../../include/RELEASE.h"
 
-#define CALL(rettype, foo_name, params...)						\
-	rettype (* UNIQUE(foo))(params) = (rettype (*)(params))sym2addr(#foo_name);	\
-	UNIQUE(foo)
-
-extern void *sym2addr(const char *name);
+#endif

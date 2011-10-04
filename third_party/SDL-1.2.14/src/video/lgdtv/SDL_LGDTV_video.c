@@ -19,7 +19,7 @@
     Sam Lantinga
     slouken@libsdl.org
 */
-#include "SDL_config.h"
+#include <SDL_config.h>
 
 /* 
   Written by Eugene Vorobev <jenya.vv@gmail.com>
@@ -39,8 +39,9 @@
 #include <termios.h>
 #include <sys/types.h>
 #include <sys/mman.h>
- 
- 
+
+#include <libopenrelease.h>
+
 #include "SDL_video.h"
 #include "SDL_mouse.h"
 #include "../SDL_sysvideo.h"
@@ -53,9 +54,6 @@
 #include "SDL_LGDTV_video.h"
 #include "SDL_LGDTV_events_c.h"
 #include "SDL_LGDTV_mouse_c.h"
-
-#include "libopenrelease.h"
-#include "RELEASE.h"
 
 // POSD0_ADR
 #define FB_ADDR 0x0AC0A000UL

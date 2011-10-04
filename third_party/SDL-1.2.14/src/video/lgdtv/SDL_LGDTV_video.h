@@ -20,10 +20,11 @@
     slouken@libsdl.org
 */
 #include "SDL_config.h"
-#include "RELEASE.h"
 
 #ifndef _SDL_LGDTV_video_h
 #define _SDL_LGDTV_video_h
+
+#include <libopenrelease.h>
 
 #include "../SDL_sysvideo.h"
 
