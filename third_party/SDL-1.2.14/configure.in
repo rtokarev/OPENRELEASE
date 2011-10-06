@@ -2058,7 +2058,7 @@ CheckLgDtv()
 {
     AC_ARG_ENABLE(video-lgdtv,
 AC_HELP_STRING([--enable-video-lgdtv], [use LgDtv Saturn6 video driver [[default=yes]]]),
-		  enable_video_lgdtv=yes)
+		  , enable_video_lgdtv=yes)
     if test x$enable_video = xyes -a x$enable_video_lgdtv = xyes; then
         AC_DEFINE(SDL_VIDEO_DRIVER_LGDTV)
         SOURCES="$SOURCES $srcdir/src/video/lgdtv/*.c"

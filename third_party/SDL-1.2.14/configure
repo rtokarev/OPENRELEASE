@@ -20728,7 +20728,9 @@ CheckLgDtv()
 {
     # Check whether --enable-video-lgdtv was given.
 if test "${enable_video_lgdtv+set}" = set; then :
-  enableval=$enable_video_lgdtv; enable_video_lgdtv=yes
+  enableval=$enable_video_lgdtv;
+else
+  enable_video_lgdtv=yes
 fi
 
     if test x$enable_video = xyes -a x$enable_video_lgdtv = xyes; then
