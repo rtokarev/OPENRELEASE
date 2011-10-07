@@ -29,13 +29,9 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define CONCAT_(x, y) x ## y
-#define CONCAT(x, y) CONCAT_(x, y)
-#define UNIQUE(x) CONCAT(x, __LINE__)
+#define CALL(rettype, foo_name, params...)		\
+	((rettype (*)(params))sym2addr(#foo_name))
 
-#define CALL(rettype, foo_name, params...)						\
-	rettype (* UNIQUE(foo))(params) = (rettype (*)(params))sym2addr(#foo_name);	\
-	UNIQUE(foo)
 
 void *sym2addr(const char *name);
 const char *addr2sym(const void *addr);
