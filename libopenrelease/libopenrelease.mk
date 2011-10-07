@@ -11,6 +11,7 @@ libopenrelease_sources = libopenrelease/config.c \
 			 libopenrelease/openrelease.c \
 			 libopenrelease/parse_config.c \
 			 libopenrelease/release_wrap.c \
+			 libopenrelease/sdl_benchmark.c \
 			 libopenrelease/stdio_wrap.c \
 			 libopenrelease/symfile.c \
 			 libopenrelease/util.c \
