@@ -34,6 +34,7 @@
 #include <keys.h>
 #include <log.h>
 #include <parse_config.h>
+#include <plugin_loader.h>
 #include <util.h>
 #include <wrap.h>
 
@@ -121,7 +122,8 @@
 	_(key_code, ##args)			\
 	_(screen_mute, ##args)			\
 	_(soft_poweroff, ##args)		\
-	_(osd_select, ##args)
+	_(osd_select, ##args)		\
+	_(plugin_test, ##args)
 
 
 struct key_action;
@@ -261,5 +263,12 @@ KEY_ACTION_HANDLER_BEGIN(osd_select)
 		return;
 
 	osd_on = !osd_on;
+}
+KEY_ACTION_HANDLER_END
+
+KEY_ACTION_HANDLER_BEGIN(plugin_test)
+{
+	void * plugin = load_plugin("./plugin_sample.so");
+	start_plugin(plugin);
 }
 KEY_ACTION_HANDLER_END

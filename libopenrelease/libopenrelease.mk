@@ -8,6 +8,7 @@ libopenrelease_sources = libopenrelease/config.c \
 			 libopenrelease/mem_patch.c \
 			 libopenrelease/openrelease.c \
 			 libopenrelease/parse_config.c \
+			 libopenrelease/plugin_loader.c \
 			 libopenrelease/release_wrap.c \
 			 libopenrelease/stdio_wrap.c \
 			 libopenrelease/symfile.c \
