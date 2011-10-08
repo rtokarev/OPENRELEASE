@@ -148,7 +148,8 @@ int __wrap_main(int argc, char *argv[], char *envp[])
 
 	debug_init();
 	key_action_init();
-	uinput_init();
+	if (config.enable_uinput)
+		uinput_init();
 
 	say_info("dive into RELEASE");
 

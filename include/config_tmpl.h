@@ -38,6 +38,7 @@ BEGIN_CONFIG(config)
 	PARAM_CONFIG(keymap, char *, NULL, parse_string, print_string)
 	PARAM_CONFIG(enable_auto_mount, unsigned, 1, parse_unsigned, print_unsigned)
 	PARAM_CONFIG(enable_divx_preview, unsigned, 1, parse_unsigned, print_unsigned)
+	PARAM_CONFIG(enable_uinput, unsigned, 1, parse_unsigned, print_unsigned)
 END_CONFIG
 
 #define CONFIG_CLEAN

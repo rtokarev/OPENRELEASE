@@ -152,6 +152,7 @@ struct keymap keymap = {
 KEY_ACTIONS_DEFAULT(KEYS);
 
 static bool poweroff = false;
+static bool disable_normal_key_path = false;
 
 
 #define CONFIG_PARSE
@@ -187,8 +188,10 @@ void key_action_init(void)
 
 WRAP(void, _MICOM_ProcessSingleKey, __UINT8 keyCode, __UINT32 keyType __attribute__((unused)))
 {
-	uinput_send(keyCode);
-	KEY_ACTIONS_DO(KEYS, keyCode);
+	if (config.enable_uinput)
+		uinput_send(keyCode);
+	if (!disable_normal_key_path)
+		KEY_ACTIONS_DO(KEYS, keyCode);
 }
 
 KEY_ACTION_HANDLER_BEGIN(default)
