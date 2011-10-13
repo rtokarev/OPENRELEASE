@@ -280,7 +280,9 @@ KEY_ACTION_HANDLER_BEGIN(sdl_test)
 	#endif
 
 	#if PLATFORM == SATURN7 || PLATFORM == BCM
-	putenv("SDL_VIDEODRIVER=directfb");		
+	putenv("SDL_VIDEODRIVER=directfb");	
+	// DTV_STATUS_T DDI_GFXOSD_EnableVirtualOSD(GFXOSD_VOSD_ID_T vosdId)
+	CALL (DTV_STATUS_T, DDI_GFXOSD_EnableVirtualOSD, GFXOSD_VOSD_ID_T)(4);
 	#endif	
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -300,6 +302,13 @@ KEY_ACTION_HANDLER_BEGIN(sdl_test)
 
 	say_debug("sdl_test: quiting...");
 	SDL_Quit();
+
+	#if PLATFORM == SATURN7 || PLATFORM == BCM
+	putenv("SDL_VIDEODRIVER=directfb");	
+	// DTV_STATUS_T DDI_GFXOSD_DisableVirtualOSD(GFXOSD_VOSD_ID_T vosdId)
+	CALL (DTV_STATUS_T, DDI_GFXOSD_DisableVirtualOSD, GFXOSD_VOSD_ID_T)(4);
+	#endif	
+	
 	say_debug("sdl_test: quit");
 }
 KEY_ACTION_HANDLER_END
