@@ -102,7 +102,7 @@ KeyValuePair *parseCfgFile(const char *file)
 
 		int r;
 
-		r = sscanf(line, "%s = %s",
+		r = sscanf(line, "%s = %[^\n]",
 			   pairs[n].key, pairs[n].value);
 		if (r != 2) {
 			say_error("bad line format: `%s'", line);

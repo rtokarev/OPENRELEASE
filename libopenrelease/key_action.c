@@ -45,7 +45,8 @@
 #include <unistd.h>
 
 
-#define ACTION_KEY_CODE_PREFIX "K_X"
+#define ACTION_KEY_CODE_PREFIX	"K_X"
+#define ACTION_SYSTEM_PREFIX	"SYSTEM:"
 
 #define SCREEN_MUTE_ON		"kd 00 01\n"
 #define SCREEN_MUTE_OFF		"kd 00 00\n"
@@ -119,6 +120,7 @@
 	_(default, ##args)			\
 	KEY_PRESS_ACTION_NAMES(KEYS, _, ##args)	\
 	_(key_code, ##args)			\
+	_(system, ##args)			\
 	_(screen_mute, ##args)			\
 	_(soft_poweroff, ##args)		\
 	_(osd_select, ##args)
@@ -164,13 +166,16 @@ static void *key_action_find_handler(const char *action_name)
 
 	// Try to interpret this actions as a key code action.
 	if (strncmp(action_name, ACTION_KEY_CODE_PREFIX, sizeof(ACTION_KEY_CODE_PREFIX) - 1) == 0) {
-		unsigned key;
 		char *endptr = NULL;
 
-		key = strtol(action_name + sizeof(ACTION_KEY_CODE_PREFIX) - 1, &endptr, 16);
+		strtol(action_name + sizeof(ACTION_KEY_CODE_PREFIX) - 1, &endptr, 16);
 		if (endptr == NULL || *endptr == '\0')
 			return key_action_key_code_handler;
 	}
+
+	// May be it's a system action.
+	if (strncmp(action_name, ACTION_SYSTEM_PREFIX, sizeof(ACTION_SYSTEM_PREFIX) - 1) == 0)
+		return key_action_system_handler;
 
 	say_error("unknown action handler: `%s', replace it with default one", action_name);
 
@@ -204,6 +209,14 @@ KEY_ACTION_HANDLER_BEGIN(key_code)
 	key = strtol(a->action_name + sizeof(ACTION_KEY_CODE_PREFIX) - 1, NULL, 16);
 
 	return __real__MICOM_ProcessSingleKey(key, 0);
+}
+KEY_ACTION_HANDLER_END
+
+KEY_ACTION_HANDLER_BEGIN(system)
+{
+	char *command = a->action_name + sizeof(ACTION_SYSTEM_PREFIX) - 1;
+
+	system(command);
 }
 KEY_ACTION_HANDLER_END
 

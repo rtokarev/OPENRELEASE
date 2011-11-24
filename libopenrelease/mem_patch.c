@@ -105,7 +105,6 @@ void mmaps_init(void)
 		assert(map != &maps[MAPS_SIZE]);
 	}
 
-	free(line);
 	fclose(maps_file);
 }
 
