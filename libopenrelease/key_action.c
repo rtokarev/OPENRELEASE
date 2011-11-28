@@ -123,7 +123,8 @@
 	_(system, ##args)			\
 	_(screen_mute, ##args)			\
 	_(soft_poweroff, ##args)		\
-	_(osd_select, ##args)
+	_(osd_select, ##args)			\
+	_(vosd4_select, ##args)
 
 
 struct key_action;
@@ -274,5 +275,25 @@ KEY_ACTION_HANDLER_BEGIN(osd_select)
 		return;
 
 	osd_on = !osd_on;
+}
+KEY_ACTION_HANDLER_END
+
+KEY_ACTION_HANDLER_BEGIN(vosd4_select)
+{
+	static bool vosd4_on = true;
+
+	vosd4_on = !vosd4_on;
+
+#if PLATFORM == SATURN7 || PLATFORM == BCM
+	if (vosd4_on) {
+		putenv("DDI_GFXOSD_EnableVirtualOSD");
+		// DTV_STATUS_T DDI_GFXOSD_EnableVirtualOSD(GFXOSD_VOSD_ID_T vosdId)
+		CALL(DTV_STATUS_T, DDI_GFXOSD_EnableVirtualOSD, GFXOSD_VOSD_ID_T)(GFXOSD_VOSD_4);
+	} else {
+		putenv("DDI_GFXOSD_DisableVirtualOSD");
+		// DTV_STATUS_T DDI_GFXOSD_DisableVirtualOSD(GFXOSD_VOSD_ID_T vosdId)
+		CALL(DTV_STATUS_T, DDI_GFXOSD_DisableVirtualOSD, GFXOSD_VOSD_ID_T)(GFXOSD_VOSD_4);
+	}
+#endif
 }
 KEY_ACTION_HANDLER_END
