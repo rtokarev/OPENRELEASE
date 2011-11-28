@@ -124,7 +124,8 @@
 	_(screen_mute, ##args)			\
 	_(soft_poweroff, ##args)		\
 	_(osd_select, ##args)			\
-	_(vosd4_select, ##args)
+	_(vosd4_select, ##args)			\
+	_(games_menu, ##args)
 
 
 struct key_action;
@@ -294,6 +295,15 @@ KEY_ACTION_HANDLER_BEGIN(vosd4_select)
 		// DTV_STATUS_T DDI_GFXOSD_DisableVirtualOSD(GFXOSD_VOSD_ID_T vosdId)
 		CALL(DTV_STATUS_T, DDI_GFXOSD_DisableVirtualOSD, GFXOSD_VOSD_ID_T)(GFXOSD_VOSD_4);
 	}
+#endif
+}
+KEY_ACTION_HANDLER_END
+
+KEY_ACTION_HANDLER_BEGIN(games_menu)
+{
+#if PLATFORM == SATURN7
+	// debugMain: call UI_CONTENTSLINK_CreateWindow
+	CALL(DTV_STATUS_T, UI_CONTENTSLINK_CreateWindow, void)();
 #endif
 }
 KEY_ACTION_HANDLER_END
