@@ -29,6 +29,14 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#if PLATFORM == SATURN6
+#define PLATFORM_KEYS(_, args...)             \
+	_(K_GUIDE,		0xa9, ##args)
+#elif PLATFORM == SATURN7 || PLATFORM == BCM
+#define PLATFORM_KEYS(_, args...)	      \
+	_(K_GUIDE,		0xab, ##args)
+#endif
+
 #define KEYS(_, args...)		      \
 	_(K_ENERGY_SAVING,	0x95, ##args) \
 	_(K_POWER,		0x08, ##args) \
@@ -37,7 +45,6 @@
 	_(K_TV_RAD,		0xf0, ##args) \
 	_(K_Q_MENU,		0x45, ##args) \
 	_(K_MENU,		0x43, ##args) \
-	_(K_GUIDE,		0xa9, ##args) \
 	_(K_UP,			0x40, ##args) \
 	_(K_DOWN,		0x41, ##args) \
 	_(K_LEFT,		0x07, ##args) \
@@ -87,6 +94,10 @@
 	_(K_P_CHECK,		0xfc, ##args) \
 	_(K_S_CHECK,		0xfd, ##args) \
 	_(K_POWERONLY,		0xfe, ##args) \
-	_(K_EZ_ADJUST,		0xff, ##args)
+	_(K_EZ_ADJUST,		0xff, ##args) \
+	_(K_INPUT_AV1,		0x5a, ##args) \
+	_(K_INPUT_HDMI,		0xce, ##args) \
+					      \
+	PLATFORM_KEYS(_, ##args)
 
 #endif
