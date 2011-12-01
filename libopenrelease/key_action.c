@@ -301,7 +301,7 @@ KEY_ACTION_HANDLER_END
 
 KEY_ACTION_HANDLER_BEGIN(games_menu)
 {
-#if PLATFORM == SATURN7
+#if PLATFORM == SATURN7 || PLATFORM == BCM
 	// debugMain: call UI_CONTENTSLINK_CreateWindow
 	CALL(DTV_STATUS_T, UI_CONTENTSLINK_CreateWindow, void)();
 #endif
