@@ -119,3 +119,11 @@ WRAP(void, API_DDM_POWER_ShutdownSystem, DDI_POWER_OFF_MODE_T powerOffMode)
 
 	__real_API_DDM_POWER_ShutdownSystem(powerOffMode);
 }
+
+
+WRAP_DECL(int, UI_SUMODE_IsEnableDbgStatusMenu);
+WRAP(int, UI_SUMODE_IsEnableDbgStatusMenu)
+{
+	say_debug("UI_SUMODE_IsEnableDbgStatusMenu intercepted.");
+	return 1;
+}

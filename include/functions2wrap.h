@@ -46,7 +46,8 @@
 # define FUNCTIONS2WRAP_CUSTOM(_)		\
 	_(API_DDM_POWER_ShutdownSystem)		\
 	_(SUMDSVC_CTRL_SetDebugStatus)		\
-	_(DDI_MICOM_SetDebugStatus)
+	_(DDI_MICOM_SetDebugStatus)			\
+	_(UI_SUMODE_IsEnableDbgStatusMenu)
 
 #endif
 
