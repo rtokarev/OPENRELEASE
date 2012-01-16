@@ -96,16 +96,12 @@ typedef enum {
 	EVENT = 1,
 	RELEASE = 2
 } DEBUG_STATE_T;
-#endif
-
-#if PLATFORM == BCM
+#elif PLATFORM == BCM
 typedef enum {
 	DEBUG = 3,
 	EVENT = 4,
 	RELEASE = 5
 } DEBUG_STATE_T;
 #endif
-
-DEBUG_STATE_T DEBUG_STATE;
 
 #endif

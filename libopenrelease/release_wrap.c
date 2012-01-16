@@ -42,7 +42,6 @@
 #if PLATFORM == SATURN6
 
 WRAP_DECL(API_STATE_T, API_EME_PreviewDivx, char *pszFilePath, EME_RECT_T rect);
-
 WRAP(API_STATE_T, API_EME_PreviewDivx, char *pszFilePath, EME_RECT_T rect)
 {
 	say_debug("API_EME_PreviewDivx");
@@ -58,11 +57,6 @@ WRAP(API_STATE_T, API_EME_PreviewDivx, char *pszFilePath, EME_RECT_T rect)
 #if PLATFORM == BCM
 
 DEBUG_STATE_T get_conf_debug_state() {
-	if(config.debug_state == NULL) {
-		say_debug("'debug_state' is not configured. Using 'EVENT as default.");
-		return EVENT;
-	}
-
 	if(strcmp(config.debug_state, "RELEASE") == 0) {
 		return RELEASE;
 	} else if(strcmp(config.debug_state, "DEBUG") == 0) {
@@ -71,7 +65,7 @@ DEBUG_STATE_T get_conf_debug_state() {
 		return EVENT;
 	}
 
-	say_debug("Unknown debug state configured. Using 'EVENT as default.");
+	say_debug("Unknown debug state configured. Using `EVENT' as default.");
 
 	return EVENT;
 }
@@ -102,7 +96,6 @@ WRAP(void, DDI_MICOM_SetDebugStatus, DEBUG_STATE_T state)
 	__real_DDI_MICOM_SetDebugStatus(use_state);
 }
 
-
 #endif
 
 WRAP_DECL(void, API_DDM_POWER_ShutdownSystem, DDI_POWER_OFF_MODE_T powerOffMode);
@@ -111,10 +104,11 @@ WRAP(void, API_DDM_POWER_ShutdownSystem, DDI_POWER_OFF_MODE_T powerOffMode)
 	say_debug("API_DDM_POWER_ShutdownSystem(%u) intercepted.", powerOffMode);
 
 	if (config.poweroff_script != NULL) {
-		say_debug("Execute configured poweroff script '%s' now.", config.poweroff_script);
+		say_debug("Execute configured poweroff script `%s' now.", config.poweroff_script);
 
-		if(system(config.poweroff_script)){
-			say_error("Error executing poweroff script '%s'. Ignoring...", config.poweroff_script);
+		if(system(config.poweroff_script)) {
+			say_error("Error executing poweroff script `%s'. Ignoring...",
+				  config.poweroff_script);
 		}
 
 	} else {
