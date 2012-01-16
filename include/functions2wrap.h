@@ -36,11 +36,17 @@
 
 #elif PLATFORM == SATURN7
 
-# define FUNCTIONS2WRAP_CUSTOM(_)
+# define FUNCTIONS2WRAP_CUSTOM(_)		\
+	_(API_DDM_POWER_ShutdownSystem)		\
+	_(SUMDSVC_CTRL_SetDebugStatus)		\
+	_(DDI_MICOM_SetDebugStatus)
 
 #elif PLATFORM == BCM
 
-# define FUNCTIONS2WRAP_CUSTOM(_)
+# define FUNCTIONS2WRAP_CUSTOM(_)		\
+	_(API_DDM_POWER_ShutdownSystem)		\
+	_(SUMDSVC_CTRL_SetDebugStatus)		\
+	_(DDI_MICOM_SetDebugStatus)
 
 #endif
 

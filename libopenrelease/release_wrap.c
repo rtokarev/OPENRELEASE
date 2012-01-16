@@ -33,18 +33,15 @@
 
 #include <RELEASE.h>
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 
 #if PLATFORM == SATURN6
 
 WRAP_DECL(API_STATE_T, API_EME_PreviewDivx, char *pszFilePath, EME_RECT_T rect);
-
-#endif
-
-
-#if PLATFORM == SATURN6
 
 WRAP(API_STATE_T, API_EME_PreviewDivx, char *pszFilePath, EME_RECT_T rect)
 {
@@ -57,3 +54,74 @@ WRAP(API_STATE_T, API_EME_PreviewDivx, char *pszFilePath, EME_RECT_T rect)
 }
 
 #endif
+
+#if PLATFORM == BCM
+
+DEBUG_STATE_T get_conf_debug_state() {
+	if(config.debug_state == NULL) {
+		say_debug("'debug_state' is not configured. Using 'EVENT as default.");
+		return EVENT;
+	}
+
+	if(strcmp(config.debug_state, "RELEASE") == 0) {
+		return RELEASE;
+	} else if(strcmp(config.debug_state, "DEBUG") == 0) {
+		return DEBUG;
+	} else if(strcmp(config.debug_state, "EVENT") == 0) {
+		return EVENT;
+	}
+
+	say_debug("Unknown debug state configured. Using 'EVENT as default.");
+
+	return EVENT;
+}
+
+WRAP_DECL(void, SUMDSVC_CTRL_SetDebugStatus, DEBUG_STATE_T state);
+WRAP(void, SUMDSVC_CTRL_SetDebugStatus, DEBUG_STATE_T state)
+{
+	say_debug("SUMDSVC_CTRL_SetDebugStatus(%u) intercepted.", state);
+
+	DEBUG_STATE_T use_state = get_conf_debug_state();
+
+	say_debug("Ignore passed debug state and use (%u).", use_state);
+	say_debug("Call SUMDSVC_CTRL_SetDebugStatus(%u) now.", use_state);
+
+	__real_SUMDSVC_CTRL_SetDebugStatus(use_state);
+}
+
+WRAP_DECL(void, DDI_MICOM_SetDebugStatus, DEBUG_STATE_T state);
+WRAP(void, DDI_MICOM_SetDebugStatus, DEBUG_STATE_T state)
+{
+	say_debug("DDI_MICOM_SetDebugStatus(%u) intercepted.", state);
+
+	DEBUG_STATE_T use_state = get_conf_debug_state();
+
+	say_debug("Ignore passed debug state and use (%u).", use_state);
+	say_debug("Call DDI_MICOM_SetDebugStatus(%u) now.", use_state);
+
+	__real_DDI_MICOM_SetDebugStatus(use_state);
+}
+
+
+#endif
+
+WRAP_DECL(void, API_DDM_POWER_ShutdownSystem, DDI_POWER_OFF_MODE_T powerOffMode);
+WRAP(void, API_DDM_POWER_ShutdownSystem, DDI_POWER_OFF_MODE_T powerOffMode)
+{
+	say_debug("API_DDM_POWER_ShutdownSystem(%u) intercepted.", powerOffMode);
+
+	if (config.poweroff_script != NULL) {
+		say_debug("Execute configured poweroff script '%s' now.", config.poweroff_script);
+
+		if(system(config.poweroff_script)){
+			say_error("Error executing poweroff script '%s'. Ignoring...", config.poweroff_script);
+		}
+
+	} else {
+		say_debug("No poweroff script configured.");
+	}
+
+	say_debug("Call API_DDM_POWER_ShutdownSystem(%u) now.", powerOffMode);
+
+	__real_API_DDM_POWER_ShutdownSystem(powerOffMode);
+}
