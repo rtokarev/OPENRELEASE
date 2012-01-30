@@ -76,7 +76,7 @@ INIT_FUNCTIONS2WRAP(functions2wrap, FUNCTIONS2WRAP);
 
 DECL_REAL(FUNCTIONS2WRAP)
 
-static void patch_origin_foo(void *origin_addr, void *wrap_addr __attribute__((unused)), void *real_addr)
+static void patch_origin_foo(void *origin_addr, void *wrap_addr, void *real_addr)
 {
 	int *origin_instr_set = (int *)origin_addr;
 
