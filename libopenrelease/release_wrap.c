@@ -28,6 +28,7 @@
  */
 
 #include <wrap.h>
+#include <util.h>
 
 #include <config.h>
 
@@ -70,30 +71,120 @@ DEBUG_STATE_T get_conf_debug_state() {
 	return EVENT;
 }
 
-WRAP_DECL(void, SUMDSVC_CTRL_SetDebugStatus, DEBUG_STATE_T state);
-WRAP(void, SUMDSVC_CTRL_SetDebugStatus, DEBUG_STATE_T state)
+char* get_debug_state_name(DEBUG_STATE_T state) {
+	switch (state) {
+		case RELEASE:
+			return "RELEASE";
+		case DEBUG:
+			return "DEBUG";
+		case EVENT:
+			return "EVENT";
+		default:
+			say_debug("unknown debug state (%u) found");
+			return "{unknown}";
+	}
+}
+
+//WRAP_DECL(int, OSA_MD_GetDbgMode);
+//WRAP(int, OSA_MD_GetDbgMode)
+//{
+//	return __real_OSA_MD_GetDbgMode();
+//}
+
+WRAP_DECL(void, OSA_MD_SetDbgMode, DEBUG_STATE_T state);
+WRAP(void, OSA_MD_SetDbgMode, DEBUG_STATE_T state)
 {
-	say_debug("SUMDSVC_CTRL_SetDebugStatus(%u) intercepted.", state);
+	say_debug("real OSA_MD_SetDbgMode('%s') intercepted.", get_debug_state_name(state));
 
 	DEBUG_STATE_T use_state = get_conf_debug_state();
 
-	say_debug("Ignore passed debug state and use (%u).", use_state);
-	say_debug("Call SUMDSVC_CTRL_SetDebugStatus(%u) now.", use_state);
+	say_debug("call real OSA_MD_SetDbgMode('%s') now.", get_debug_state_name(use_state));
+
+	__real_OSA_MD_SetDbgMode(use_state);
+
+	use_state = CALL(DEBUG_STATE_T,OSA_MD_GetDbgMode, void)();
+
+	say_debug("OSA_MD_GetDbgMode() = '%s'", get_debug_state_name(use_state));
+
+}
+
+
+WRAP_DECL(void, SUMDSVC_CTRL_SetDebugStatus, DEBUG_STATE_T state);
+WRAP(void, SUMDSVC_CTRL_SetDebugStatus, DEBUG_STATE_T state)
+{
+	say_debug("real SUMDSVC_CTRL_SetDebugStatus('%s') intercepted.", get_debug_state_name(state));
+
+	say_debug("call real OSA_MD_SetDbgMode('%s') now.", get_debug_state_name(RELEASE));
+
+	__real_OSA_MD_SetDbgMode(RELEASE);
+
+	DEBUG_STATE_T use_state = get_conf_debug_state();
+
+	say_debug("call real SUMDSVC_CTRL_SetDebugStatus('%s') now.", get_debug_state_name(use_state));
 
 	__real_SUMDSVC_CTRL_SetDebugStatus(use_state);
+
+	say_debug("call real OSA_MD_SetDbgMode('%s') now.", get_debug_state_name(use_state));
+
+	__real_OSA_MD_SetDbgMode(use_state);
+
+	use_state = CALL(DEBUG_STATE_T,SUMDSVC_CTRL_GetDebugStatus, DEBUG_STATE_T*)(&use_state);
+
+	say_debug("SUMDSVC_CTRL_GetDebugStatus() = '%s'", get_debug_state_name(use_state));
 }
 
 WRAP_DECL(void, DDI_MICOM_SetDebugStatus, DEBUG_STATE_T state);
 WRAP(void, DDI_MICOM_SetDebugStatus, DEBUG_STATE_T state)
 {
-	say_debug("DDI_MICOM_SetDebugStatus(%u) intercepted.", state);
+	say_debug("real DDI_MICOM_SetDebugStatus('%s') intercepted.", get_debug_state_name(state));
 
 	DEBUG_STATE_T use_state = get_conf_debug_state();
 
-	say_debug("Ignore passed debug state and use (%u).", use_state);
-	say_debug("Call DDI_MICOM_SetDebugStatus(%u) now.", use_state);
+	say_debug("call real DDI_MICOM_SetDebugStatus('%s') now.", get_debug_state_name(use_state));
 
 	__real_DDI_MICOM_SetDebugStatus(use_state);
+
+	use_state = CALL(DEBUG_STATE_T,DDI_MICOM_GetDebugStatus, void)();
+
+	say_debug("DDI_MICOM_GetDebugStatus() = '%s'", get_debug_state_name(use_state));
+}
+
+WRAP_DECL(void, OSA_MD_GetDebugStatus);
+WRAP(void, OSA_MD_GetDebugStatus)
+{
+	say_debug("real OSA_MD_GetDebugStatus intercepted.");
+	say_debug("blocking call to real OSA_MD_GetDebugStatus.");
+
+	DEBUG_STATE_T use_state = get_conf_debug_state();
+
+	say_debug("call real OSA_MD_SetDbgMode('%s') now.", get_debug_state_name(use_state));
+
+	__real_OSA_MD_SetDbgMode(use_state);
+}
+
+WRAP_DECL(void, OSA_MD_InitDebugStatus);
+WRAP(void, OSA_MD_InitDebugStatus)
+{
+	say_debug("real OSA_MD_InitDebugStatus intercepted.");
+	say_debug("blocking call to real OSA_MD_InitDebugStatus.");
+
+	DEBUG_STATE_T use_state = get_conf_debug_state();
+
+	say_debug("call real SUMDSVC_CTRL_SetDebugStatus('%s') instead.", get_debug_state_name(use_state));
+	__real_SUMDSVC_CTRL_SetDebugStatus(use_state);
+	say_debug("call real OSA_MD_SetDbgMode('%s') instead.", get_debug_state_name(use_state));
+	__real_OSA_MD_SetDbgMode(use_state);
+}
+
+void set_debug_state(DEBUG_STATE_T state) {
+
+	say_debug("call real OSA_MD_SetDbgMode('%s')", get_debug_state_name(state));
+	__real_OSA_MD_SetDbgMode(state);
+	say_debug("call real DDI_MICOM_SetDebugStatus('%s')", get_debug_state_name(state));
+	__real_DDI_MICOM_SetDebugStatus(state);
+	say_debug("call real SUMDSVC_CTRL_SetDebugStatus('%s')", get_debug_state_name(state));
+	__real_SUMDSVC_CTRL_SetDebugStatus(state);
+
 }
 
 #endif
@@ -102,6 +193,22 @@ WRAP_DECL(void, API_DDM_POWER_ShutdownSystem, DDI_POWER_OFF_MODE_T powerOffMode)
 WRAP(void, API_DDM_POWER_ShutdownSystem, DDI_POWER_OFF_MODE_T powerOffMode)
 {
 	say_debug("API_DDM_POWER_ShutdownSystem(%u) intercepted.", powerOffMode);
+
+	DEBUG_STATE_T debug_state = CALL(DEBUG_STATE_T,OSA_MD_GetDbgMode, void)();
+
+	say_debug("OSA_MD_GetDbgMode() = '%s'.", get_debug_state_name(debug_state));
+
+	debug_state = CALL(DEBUG_STATE_T,DDI_MICOM_GetDebugStatus, void)();
+
+	say_debug("DDI_MICOM_GetDebugStatus() = '%s'.", get_debug_state_name(debug_state));
+
+	debug_state = CALL(DEBUG_STATE_T,SUMDSVC_CTRL_GetDebugStatus, DEBUG_STATE_T*)(&debug_state);
+
+	say_debug("SUMDSVC_CTRL_GetDebugStatus() = '%s'.", get_debug_state_name(debug_state));
+
+	DEBUG_STATE_T use_state = get_conf_debug_state();
+
+	set_debug_state(use_state);
 
 	if (config.poweroff_script != NULL) {
 		say_debug("Execute configured poweroff script `%s' now.", config.poweroff_script);

@@ -38,8 +38,6 @@
 
 # define FUNCTIONS2WRAP_CUSTOM(_)		\
 	_(API_DDM_POWER_ShutdownSystem)		\
-	_(SUMDSVC_CTRL_SetDebugStatus)		\
-	_(DDI_MICOM_SetDebugStatus)
 
 #elif PLATFORM == BCM
 
@@ -47,7 +45,11 @@
 	_(API_DDM_POWER_ShutdownSystem)		\
 	_(SUMDSVC_CTRL_SetDebugStatus)		\
 	_(DDI_MICOM_SetDebugStatus)			\
-	_(UI_SUMODE_IsEnableDbgStatusMenu)
+	_(UI_SUMODE_IsEnableDbgStatusMenu)  \
+	_(OSA_MD_SetDbgMode)  				\
+	_(OSA_MD_GetDebugStatus)  			\
+	_(OSA_MD_InitDebugStatus)
+
 
 #endif
 
